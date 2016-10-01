@@ -1,0 +1,69 @@
+# vim: set ft=ansible:
+- hosts: ec2mongodb
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Add apt key
+      become: yes
+      apt_key: id=EA312927 keyserver=hkp://keyserver.ubuntu.com:80 state=present
+
+    - name: Update source.list
+      become: yes
+      apt_repository:
+        repo={{item}}
+        state=present
+      with_items:
+        - deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse
+
+    - name: Update packages
+      become: yes
+      apt: update_cache=yes
+           upgrade=dist
+
+    - name: Install dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - mongodb-org-server=3.2.9
+        - python-pip
+        - python-virtualenv
+
+    - name: Install pymongo
+      pip: name=pymongo
+      become: yes
+
+    - name: Template the MongoDB configuration file
+      become: yes
+      action: template
+        src=templates/confs/mongod.conf.j2
+        dest=/etc/mongod.conf
+      notify:
+        - restart mongodb
+
+    - meta: flush_handlers
+
+    - name: Create admin
+      mongodb_user:
+        name="admin"
+        password="123456"
+        roles='readWrite,dbAdmin,userAdmin'
+        state=present
+        database="admin"
+
+    - name: Create user
+      mongodb_user:
+        login_user="admin"
+        login_password="123456"
+        name={{ db_user }}
+        password={{ db_pass }}
+        roles='readWrite,dbAdmin,userAdmin'
+        state=present
+        database=ycsb
+
+  handlers:
+    - name: restart mongodb
+      become: yes
+      service:
+        name=mongod
+        state=restarted

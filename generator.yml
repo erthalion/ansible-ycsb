@@ -1,0 +1,46 @@
+# vim: set ft=ansible:
+- hosts: ec2generator
+  gather_facts: false
+  user: ubuntu
+  vars:
+    yscb_dir: "{{ansible_env.HOME}}/ycsb"
+  tasks:
+    - name: Update packages
+      become: yes
+      apt: update_cache=yes
+           upgrade=dist
+
+    - name: Install dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - default-jdk
+        - maven
+        - git
+
+    - name: Clone yscb
+      git: repo=https://github.com/erthalion/YCSB
+           dest={{yscb_dir}}
+           version=origin/jdbc-native-json
+
+    - name: Build ycsb
+      command: chdir={{yscb_dir}} mvn -pl com.yahoo.ycsb:{{item}} -am  clean package
+      with_items:
+        - mongodb-binding
+        - pgjsonb-binding
+        - mysqljson-binding
+
+    - name: Set up options
+      template:
+        src=templates/options/{{ item }}.options.j2
+        dest=/home/ubuntu/{{ item }}.options
+      with_items:
+        - postgresql
+        - mysql
+        - mongo
+
+    - name: Copy drivers
+      copy:
+        src=bindings
+        dest=/home/ubuntu/ycsb/

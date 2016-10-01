@@ -1,0 +1,93 @@
+# vim: set ft=ansible:
+# export AWS_SECRET_ACCESS_KEY key
+# export AWS_ACCESS_KEY_ID key_id
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+      keypair: "keypair"
+      instance_type: "m4.large"
+      image: "ami-9abea4fb"
+      vpc_subnet_id: "subnet-id"
+      region: "us-west-2"
+      availability_zone: "us-west-2b"
+  tasks:
+    - name: Create instances
+      ec2: image={{image}}
+           instance_type={{instance_type}}
+           keypair={{keypair}}
+           instance_tags="Name={{item}}"
+           region={{region}}
+           group={{item}}
+           vpc_subnet_id={{vpc_subnet_id}}
+           spot_price=0.1
+           zone={{availability_zone}}
+           wait=true
+      register: ec2_info
+      with_items:
+        - generator
+        - postgresql
+        - mysql
+        - mongodb
+
+    - name: Add instances to host group
+      add_host: hostname={{item.public_ip}}
+                groupname=ec2hosts
+                ansible_ssh_private_key_file=/path/to/key.pem
+      with_items: "{{ ec2_info.results[0].instances }}"
+
+    - name: Add instances to host group
+      add_host: hostname={{item.public_ip}}
+                groupname=ec2hosts
+                ansible_ssh_private_key_file=/path/to/key.pem
+      with_items: "{{ ec2_info.results[1].instances }}"
+
+    - name: Add instances to host group
+      add_host: hostname={{item.public_ip}}
+                groupname=ec2generator
+                ansible_ssh_private_key_file=/path/to/key.pem
+      with_items: "{{ ec2_info.results[0].instances }}"
+
+    - name: Add instances to host group
+      add_host: hostname={{item.public_ip}}
+                groupname=ec2mongodb
+                ansible_ssh_private_key_file=/path/to/key.pem
+      with_items: ec2_info.results[1].instances
+
+    - name: Add instances to host group
+      add_host: hostname={{item.public_ip}}
+                groupname=ec2postgresql
+                ansible_ssh_private_key_file=/path/to/key.pem
+      with_items: "{{ ec2_info.results[2].instances }}"
+
+    - name: Add instances to host group
+      add_host: hostname={{item.public_ip}}
+                groupname=ec2mysql
+                ansible_ssh_private_key_file=/path/to/key.pem
+      with_items: ec2_info.results[2].instances
+
+    - name: Wait for SSH to come up
+      wait_for: host={{item}}
+                port=22
+                delay=60
+                timeout=320
+                state=started
+      with_items: "{{ groups.ec2hosts }}"
+
+- hosts: ec2hosts
+  user: ubuntu
+  tasks:
+    - name: Update packages
+      become: yes
+      apt: update_cache=yes
+           upgrade=dist
+
+- include: generator.yml
+- include: mongodb.yml
+- include: postgresql.yml
+- include: mysql.yml
+
+- include: test_postgresql.yml
+- include: test_mysql.yml
+- include: test_mongo.yml

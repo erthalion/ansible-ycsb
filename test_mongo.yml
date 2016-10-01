@@ -1,0 +1,10 @@
+# vim: set ft=ansible:
+- hosts: ec2generator
+  gather_facts: false
+  user: ubuntu
+  vars:
+    pg_host: "{{ groups['ec2mongodb'][0] }}"
+  tasks:
+    - name: Load data
+      shell: ./bin/ycsb load mongodb -s -P /home/ubuntu/mongo.options -P workloads/workloada -threads 2
+            chdir=/home/ubuntu/ycsb/

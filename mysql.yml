@@ -1,0 +1,74 @@
+# vim: set ft=ansible:
+- hosts: ec2mysql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Download mysql config deb file
+      get_url: url=http://dev.mysql.com/get/mysql-apt-config_0.8.0-1_all.deb dest={{ ansible_env.HOME }}
+
+    - name: Install mysql config deb package
+      become: yes
+      apt: deb={{ ansible_env.HOME }}/mysql-apt-config_0.8.0-1_all.deb
+
+    - name: Update packages
+      become: yes
+      apt: update_cache=yes
+           upgrade=dist
+
+    - name: Install dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - mysql-server
+        - python-mysqldb
+
+    - name: Template Mysql configuration file
+      become: yes
+      action: template
+        src=templates/confs/{{ item }}.cnf.j2
+        dest=/etc/mysql/mysql.conf.d/{{ item }}.cnf
+      with_items:
+        - mysqld
+      notify:
+        - restart mysql
+
+    - meta: flush_handlers
+
+    - name: Create user
+      mysql_user:
+        name={{ db_user }}
+        password={{ db_pass }}
+        priv=*.*:ALL,GRANT
+        state=present
+        host="%"
+      become: yes
+      become_user: root
+      become_method: sudo
+
+    - name: Create user database
+      mysql_db:
+        name={{ db_user }}
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+
+    - name: Create YCSB database
+      mysql_db:
+        name=ycsb
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+
+    - name: Copy init sql
+      template:
+        src=templates/sql/mysql_init.sql
+        dest=/home/ubuntu/mysql_init.sql
+
+    - name: Create usertable with json
+      shell: mysql ycsb -u {{ db_user }} -p{{ db_pass }} < /home/ubuntu/mysql_init.sql
+
+  handlers:
+    - name: restart mysql
+      become: yes
+      service:
+        name=mysql
+        state=restarted

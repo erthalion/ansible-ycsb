@@ -1,0 +1,83 @@
+# vim: set ft=ansible:
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Add apt key
+      become: yes
+      apt_key: id=ACCC4CF8 url=https://www.postgresql.org/media/keys/ACCC4CF8.asc state=present
+
+    - name: Update source.list
+      become: yes
+      apt_repository:
+        repo={{item}}
+        state=present
+      with_items:
+        - deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main
+
+    - name: Update packages
+      become: yes
+      apt: update_cache=yes
+           upgrade=dist
+
+    - name: Install dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - postgresql-9.5
+        - libpq-dev
+        - python-psycopg2
+
+    - name: Template Postgresql configuration file
+      become: yes
+      action: template
+        src=templates/confs/{{ item }}.conf.j2
+        dest=/etc/postgresql/9.5/main/{{ item }}.conf
+      with_items:
+        - pg_hba
+        - postgresql
+      notify:
+        - restart postgresql
+
+    - meta: flush_handlers
+
+    - name: Create user
+      postgresql_user:
+        name={{ db_user }}
+        password={{ db_pass }}
+        role_attr_flags=CREATEDB,SUPERUSER
+        state=present
+      become: yes
+      become_user: postgres
+      become_method: sudo
+
+    - name: Create user database
+      postgresql_db:
+        name={{ db_user }}
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+
+    - name: Create YCSB database
+      postgresql_db:
+        name=ycsb
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+
+    - name: Copy init sql
+      template:
+        src=templates/sql/pg_init.sql
+        dest=/home/ubuntu/pg_init.sql
+
+    - name: Create usertable with jsonb
+      shell: psql ycsb -U {{ db_user }} < /home/ubuntu/pg_init.sql
+
+  environment:
+    PGPASSWORD: "{{ db_pass }}"
+
+  handlers:
+    - name: restart postgresql
+      become: yes
+      service:
+        name=postgresql
+        state=restarted

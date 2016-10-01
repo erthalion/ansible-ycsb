@@ -1,0 +1,6 @@
+recordcount=10
+operationcount=10
+db.driver=com.mysql.jdbc.Driver
+db.url=jdbc:mysql://{{ groups['ec2mysql'][0] }}:3306/ycsb
+db.user={{ db_user }}
+db.passwd={{ db_pass }}

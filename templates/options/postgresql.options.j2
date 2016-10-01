@@ -1,0 +1,6 @@
+recordcount=10
+operationcount=10
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql://{{ groups['ec2postgresql'][0] }}:5432/ycsb
+db.user={{ db_user }}
+db.passwd={{ db_pass }}
