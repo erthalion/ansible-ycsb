@@ -8,3 +8,10 @@
     - name: Load data
       shell: ./bin/ycsb load pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P /home/ubuntu/postgresql.options -P workloads/workloada -threads 2
             chdir=/home/ubuntu/ycsb/
+      register: load_postgresql
+
+    - name: Save result to file
+      copy: content="{{ load_postgresql }}" dest=/home/ubuntu/load_postgresql
+
+    - name: Fetch results
+      fetch: src=load_postgresql dest=./ fail_on_missing=yes
