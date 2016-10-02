@@ -6,5 +6,5 @@
     mysql_host: "{{ groups['ec2mysql'][0] }}"
   tasks:
     - name: Load data
-      shell: ./bin/ycsb load mysqljson -s -cp bindings/lib/mysql-connector-java-5.1.38-bin.jar -P /home/ubuntu/mysql.options -P workloads/workloada -threads 2
+      shell: ./bin/ycsb load mysqljson -s -cp bindings/lib/mysql-connector-java-5.1.38-bin.jar -P workloads/workloada -P /home/ubuntu/mysql.options -threads 2
             chdir=/home/ubuntu/ycsb/
