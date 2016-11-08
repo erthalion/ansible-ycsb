@@ -1,6 +1,44 @@
-recordcount=10
-operationcount=10
+recordcount=1000000
+operationcount=1000000
 db.driver=org.postgresql.Driver
 db.url=jdbc:postgresql://{{ groups['ec2postgresql'][0] }}:5432/ycsb
 db.user={{ db_user }}
 db.passwd={{ db_pass }}
+
+{% if nested == "true" %}
+flat_key = false
+nested_key = true
+depth = 10
+{% endif %}
+{% if field_index == "true" %}
+field_index = true
+jsonb_path_ops = false
+{% else %}
+jsonb_path_ops = true
+field_index = false
+{% endif %}
+
+{% if large_document == "true" %}
+fieldcount = 100
+fieldlength = 200
+{% endif %}
+
+{% if complex == "true" %}
+fieldcount = 100
+{% else %}
+document_depth = 0
+{% endif %}
+
+{% if select_one is defined %}
+fieldcount = 100
+select_one_field = true
+select_field_path = 'FIELD100' 
+select_all_fields = false
+{% endif %}
+
+{% if select_slice is defined %}
+fieldcount = 100
+select_one_field = true
+select_field_path = 'FIELD2', data->>'FIELD3', data->>'FIELD4', data->>'FIELD5', data->>'FILED6', data->>'FIELD7', data->>'FIELD8', data->>'FIELD9', data->>'FIELD10' 
+select_all_fields = false
+{% endif %}

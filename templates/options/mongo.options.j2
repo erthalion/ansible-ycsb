@@ -1,4 +1,39 @@
-recordcount=10
-operationcount=10
+recordcount=1000000
+operationcount=1000000
 mongodb.auth="true"
 mongodb.url=mongodb://{{ db_user }}:{{ db_pass }}@{{ groups['ec2mongodb'][0] }}:27017/ycsb
+
+{% if journaled %}
+mongodb.writeConcern = journaled
+{% endif %}
+
+{% if nested == "true" %}
+flat_key = false
+nested_key = true
+depth = 10
+{% endif %}
+
+{% if large_document == "true" %}
+fieldcount = 100
+fieldlength = 200
+{% endif %}
+
+{% if complex == "true" %}
+fieldcount = 100
+{% else %}
+document_depth = 0
+{% endif %}
+
+{% if select_one is defined %}
+fieldcount = 100
+select_one_field = true
+select_field_path = field100
+select_all_fields = false
+{% endif %}
+
+{% if select_slice is defined %}
+fieldcount = 100
+select_one_field = true
+select_field_path = field2,field3,field4,field5,field6,field7,field8,field9,field10
+select_all_fields = false
+{% endif %}

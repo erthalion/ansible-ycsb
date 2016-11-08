@@ -1,6 +1,31 @@
-recordcount=10
-operationcount=10
+recordcount=1000000
+operationcount=1000000
 db.driver=com.mysql.jdbc.Driver
 db.url=jdbc:mysql://{{ groups['ec2mysql'][0] }}:3306/ycsb
 db.user={{ db_user }}
 db.passwd={{ db_pass }}
+
+{% if large_document == "true" %}
+fieldcount = 100
+fieldlength = 200
+{% endif %}
+
+{% if complex == "true" %}
+fieldcount = 100
+{% else %}
+document_depth = 0
+{% endif %}
+
+{% if select_one is defined %}
+fieldcount = 100
+select_one_field = true
+select_field_path = '$.FIELD100'
+select_all_fields = false
+{% endif %}
+
+{% if select_slice is defined %}
+fieldcount = 100
+select_one_field = true
+select_field_path = '$.FIELD2', '$.FIELD3', '$.FIELD4', '$.FIELD5', '$.FIELD6', '$.FIELD7', '$.FIELD8', '$.FIELD9', '$.FIELD10'
+select_all_fields = false
+{% endif %}

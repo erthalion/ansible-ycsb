@@ -9,9 +9,11 @@ storage:
   journal:
     enabled: true
   engine: wiredTiger
+{% if transaction_method is defined %}
   wiredTiger:
       engineConfig:
-          configString: "log=(enabled),transaction_sync=(enabled=true,method=fsync)"
+          configString: "transaction_sync=(enabled=true,method=fsync)"
+{% endif %}
 
 #  mmapv1:
 #  wiredTiger:

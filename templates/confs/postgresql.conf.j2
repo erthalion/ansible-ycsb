@@ -121,7 +121,7 @@ shared_buffers = 4GB			# min 128kB
 					# (change requires restart)
 # Caution: it is not advisable to set max_prepared_transactions nonzero unless
 # you actively intend to use prepared transactions.
-work_mem = 1GB				# min 64kB
+#work_mem = 1GB				# min 64kB
 #maintenance_work_mem = 64MB		# min 1MB
 #autovacuum_work_mem = -1		# min 1MB, or -1 to use maintenance_work_mem
 #max_stack_depth = 2MB			# min 100kB
@@ -288,7 +288,7 @@ dynamic_shared_memory_type = posix	# the default is the first option
 #cpu_tuple_cost = 0.01			# same scale as above
 #cpu_index_tuple_cost = 0.005		# same scale as above
 #cpu_operator_cost = 0.0025		# same scale as above
-#effective_cache_size = 4GB
+effective_cache_size = 8GB
 
 # - Genetic Query Optimizer -
 
