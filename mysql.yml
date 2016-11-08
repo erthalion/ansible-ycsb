@@ -8,7 +8,7 @@
 
     - name: Install mysql config deb package
       become: yes
-      apt: deb={{ ansible_env.HOME }}/mysql-apt-config_0.8.0-1_all.deb
+      apt: deb=/home/ubuntu/mysql-apt-config_0.8.0-1_all.deb
 
     - name: Update packages
       become: yes

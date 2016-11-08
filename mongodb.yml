@@ -24,6 +24,7 @@
       become: yes
       apt: name={{item}}
            state=installed
+           force=yes
       with_items:
         - mongodb-org-server=3.2.9
         - python-pip
@@ -60,6 +61,14 @@
         roles='readWrite,dbAdmin,userAdmin'
         state=present
         database=ycsb
+
+    - name: Copy init js
+      template:
+        src=templates/sql/mongo.js
+        dest=/home/ubuntu/mongo.js
+
+    - name: Init collection
+      shell: mongo 127.0.0.1:27017/ycsb -u {{ db_user }} -p {{ db_pass }} < /home/ubuntu/mongo.js
 
   handlers:
     - name: restart mongodb

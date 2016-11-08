@@ -2,16 +2,26 @@
 - hosts: ec2generator
   gather_facts: false
   user: ubuntu
-  vars:
-    pg_host: "{{ groups['ec2postgresql'][0] }}"
   tasks:
     - name: Load data
       shell: ./bin/ycsb load pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P workloads/workloada -P /home/ubuntu/postgresql.options -threads 2
             chdir=/home/ubuntu/ycsb/
       register: load_postgresql
+      when: load is defined
+
+    - name: Run workload
+      shell: ./bin/ycsb run pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P workloads/{{ workload }} -P /home/ubuntu/postgresql.options -threads {{ threads }}
+            chdir=/home/ubuntu/ycsb/
+      register: run_postgresql
+
+    - name: Save load to file
+      copy: content={{ load_postgresql }} dest=/home/ubuntu/load_postgresql
 
     - name: Save result to file
-      copy: content="{{ load_postgresql }}" dest=/home/ubuntu/load_postgresql
+      copy: content={{ run_postgresql }} dest=/home/ubuntu/run_postgresql
 
     - name: Fetch results
-      fetch: src=load_postgresql dest=./ fail_on_missing=yes
+      fetch: src={{ item }} dest=./{{ workload }}_threads_{{ threads }}_{{ date }} fail_on_missing=yes
+      with_items:
+        - load_postgresql
+        - run_postgresql

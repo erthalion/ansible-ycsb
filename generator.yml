@@ -3,7 +3,7 @@
   gather_facts: false
   user: ubuntu
   vars:
-    yscb_dir: "{{ansible_env.HOME}}/ycsb"
+    yscb_dir: /home/ubuntu/ycsb
   tasks:
     - name: Update packages
       become: yes
