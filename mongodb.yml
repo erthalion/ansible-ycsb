@@ -64,7 +64,7 @@
 
     - name: Copy init js
       template:
-        src=templates/sql/mongo.js
+        src=templates/init/mongo.js
         dest=/home/ubuntu/mongo.js
 
     - name: Init collection

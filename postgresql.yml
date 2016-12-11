@@ -66,7 +66,7 @@
 
     - name: Copy init sql
       template:
-        src=templates/sql/pg_init.sql
+        src=templates/init/pg_init.sql
         dest=/home/ubuntu/pg_init.sql
 
     - name: Create usertable with jsonb

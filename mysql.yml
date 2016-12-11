@@ -60,7 +60,7 @@
 
     - name: Copy init sql
       template:
-        src=templates/sql/mysql_init.sql
+        src=templates/init/mysql_init.sql
         dest=/home/ubuntu/mysql_init.sql
 
     - name: Create usertable with json
