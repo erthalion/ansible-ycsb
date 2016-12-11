@@ -1,0 +1,28 @@
+- name: Create instance {{ instance }}
+  ec2:
+    image: "{{ image }}"
+    instance_type: "{{ instance_type }}"
+    keypair: "{{ keypair }}"
+    instance_tags:
+      Name: "{{ instance }}"
+    region: "{{ region }}"
+    group: "{{ instance }}"
+    vpc_subnet_id: "{{ vpc_subnet_id }}"
+    spot_price: "{{ price }}"
+    zone: "{{ availability_zone }}"
+    wait: true
+    volumes: "{{ instance_volumes }}"
+    monitoring: no
+  register: ec2_info
+
+- name: Add instance {{ instance }} to ec2hosts group
+  add_host: hostname={{ item.public_ip }}
+            groupname=ec2hosts
+            ansible_ssh_private_key_file="{{ ssh_key }}"
+  with_items: "{{ ec2_info.instances }}"
+
+- name: Add instance {{ instance }} to ec2{{ instance }} group
+  add_host: hostname={{ item.public_ip }}
+            groupname="ec2{{ instance }}"
+            ansible_ssh_private_key_file="{{ ssh_key }}"
+  with_items: "{{ ec2_info.instances }}"
