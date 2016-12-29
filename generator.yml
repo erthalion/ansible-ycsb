@@ -25,20 +25,22 @@
            version=origin/jdbc-native-json
 
     - name: Build ycsb
-      command: chdir={{yscb_dir}} mvn -pl com.yahoo.ycsb:{{item}} -am  clean package
+      command: chdir={{yscb_dir}} mvn -pl com.yahoo.ycsb:{{item.name}} -am  clean package
       with_items:
-        - mongodb-binding
-        - pgjsonb-binding
-        - mysqljson-binding
+        - { name: mongodb-binding, skip: "{{mongodb is not defined}}" }
+        - { name: pgjsonb-binding, skip: "{{postgresql is not defined}}" }
+        - { name: mysqljsonb-binding, skip: "{{mysql is not defined}}" }
+      when: not item.skip | bool
 
     - name: Set up options
       template:
-        src=templates/options/{{ item }}.options.j2
-        dest=/home/ubuntu/{{ item }}.options
+        src=templates/options/{{ item.db }}.options.j2
+        dest=/home/ubuntu/{{ item.db }}.options
       with_items:
-        - postgresql
-        - mysql
-        - mongo
+        - { db: postgresql, skip: "{{postgresql is not defined}}" }
+        - { db: mysql, skip: "{{ mysql is not defined }}" }
+        - { db: mongo, skip: "{{ mongodb is not defined }}" }
+      when: not item.skip | bool
 
     - name: Copy drivers
       copy:

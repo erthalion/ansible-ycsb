@@ -5,12 +5,12 @@ db.url=jdbc:postgresql://{{ groups['ec2postgresql'][0] }}:5432/ycsb
 db.user={{ db_user }}
 db.passwd={{ db_pass }}
 
-{% if nested == "true" %}
+{% if nested is defined %}
 flat_key = false
 nested_key = true
 depth = 10
 {% endif %}
-{% if field_index == "true" %}
+{% if field_index is defined %}
 field_index = true
 jsonb_path_ops = false
 {% else %}
@@ -18,12 +18,12 @@ jsonb_path_ops = true
 field_index = false
 {% endif %}
 
-{% if large_document == "true" %}
+{% if large_document is defined %}
 fieldcount = 100
 fieldlength = 200
 {% endif %}
 
-{% if complex == "true" %}
+{% if complex is defined %}
 fieldcount = 100
 {% else %}
 document_depth = 0

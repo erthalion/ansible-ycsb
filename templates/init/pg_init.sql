@@ -1,8 +1,8 @@
 create table usertable(data jsonb);
 
-{% if field_index and nested %}
+{% if field_index is defined and nested is defined %}
 create index usertable_data_idx on usertable ((data->>{% for i in range(9, 0, -1) %}'YCSB_KEY{{i}}'->>{% endfor %}'YCSB_KEY'));
-{% elif field_index %}
+{% elif field_index is defined %}
 create index usertable_data_idx on usertable ((data->>'YCSB_KEY'));
 {% else %}
 create index usertable_data_idx on usertable using gin(data jsonb_path_ops);

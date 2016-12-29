@@ -15,15 +15,17 @@
       price: 0.3
       db_volumes:
       - device_name: /dev/sda1
-        volume_size: 32
+        volume_size: 64
         volume_type: gp2
         delete_on_termination: true
+      db_user: "test"
+      db_pass: "123456"
 
   roles:
     - { role: create_instance, instance: "generator", instance_volumes: []}
-    - { role: create_instance, instance: "postgresql", instance_volumes: "{{ db_volumes }}" }
-    - { role: create_instance, instance: "mysql", instance_volumes: "{{ db_volumes }}" }
-    - { role: create_instance, instance: "mongodb", instance_volumes: "{{ db_volumes }}" }
+    - { role: create_instance, instance: "postgresql", instance_volumes: "{{ db_volumes }}", when: postgresql is defined}
+    - { role: create_instance, instance: "mysql", instance_volumes: "{{ db_volumes }}", when: mysql is defined}
+    - { role: create_instance, instance: "mongodb", instance_volumes: "{{ db_volumes }}", when: mongodb is defined}
 
   tasks:
     - name: Wait for SSH to come up for all instances
@@ -35,10 +37,21 @@
       with_items: "{{ groups.ec2hosts }}"
 
 - include: generator.yml
+
 - include: postgresql.yml
-- include: mongodb.yml
+  when: postgresql is defined
+
 - include: mysql.yml
+  when: mysql is defined
+
+- include: mongodb.yml
+  when: mongodb is defined
 
 - include: test_postgresql.yml
+  when: postgresql is defined
+
 - include: test_mysql.yml
+  when: mysql is defined
+
 - include: test_mongo.yml
+  when: mysql is defined
