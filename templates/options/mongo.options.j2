@@ -3,22 +3,22 @@ operationcount=1000000
 mongodb.auth="true"
 mongodb.url=mongodb://{{ db_user }}:{{ db_pass }}@{{ groups['ec2mongodb'][0] }}:27017/ycsb
 
-{% if journaled %}
+{% if journaled is defined %}
 mongodb.writeConcern = journaled
 {% endif %}
 
-{% if nested == "true" %}
+{% if nested is defined %}
 flat_key = false
 nested_key = true
 depth = 10
 {% endif %}
 
-{% if large_document == "true" %}
+{% if large_document is defined %}
 fieldcount = 100
 fieldlength = 200
 {% endif %}
 
-{% if complex == "true" %}
+{% if complex is defined %}
 fieldcount = 100
 {% else %}
 document_depth = 0

@@ -18,8 +18,6 @@
         volume_size: 64
         volume_type: gp2
         delete_on_termination: true
-      db_user: "test"
-      db_pass: "123456"
 
   roles:
     - { role: create_instance, instance: "generator", instance_volumes: []}
@@ -54,4 +52,4 @@
   when: mysql is defined
 
 - include: test_mongo.yml
-  when: mysql is defined
+  when: mongodb is defined

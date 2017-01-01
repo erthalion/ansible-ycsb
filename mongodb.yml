@@ -26,7 +26,7 @@
            state=installed
            force=yes
       with_items:
-        - mongodb-org-server=3.2.9
+        - mongodb-org=3.2.9
         - python-pip
         - python-virtualenv
 
