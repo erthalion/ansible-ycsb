@@ -2,6 +2,9 @@
 - hosts: ec2generator
   gather_facts: false
   user: ubuntu
+  vars:
+    dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+
   tasks:
     - name: Load data
       shell: ./bin/ycsb load mysqljson -s -cp bindings/lib/mysql-connector-java-5.1.38-bin.jar -P workloads/workloada -P /home/ubuntu/mysql.options -threads 2
@@ -21,7 +24,10 @@
       copy: content={{ run_mysql }} dest=/home/ubuntu/run_mysql
 
     - name: Fetch results
-      fetch: src={{ item }} dest=./{{ workload }}_threads_{{ threads }}_{{ date }} fail_on_missing=yes
+      fetch: src={{ item }} dest={{ dest_directory }} fail_on_missing=yes
       with_items:
         - load_mysql
         - run_mysql
+
+    - name: Fetch options
+      fetch: src=/home/ubuntu/mysql.options dest={{ dest_directory }} fail_on_missing=yes

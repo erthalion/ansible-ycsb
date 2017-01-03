@@ -2,6 +2,9 @@
 - hosts: ec2generator
   gather_facts: false
   user: ubuntu
+  vars:
+    dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+
   tasks:
     - name: Load data
       shell: ./bin/ycsb load mongodb -s -P workloads/{{ workload }} -P /home/ubuntu/mongo.options -threads 20
@@ -21,7 +24,10 @@
       copy: content={{ run_mongo }} dest=/home/ubuntu/run_mongo
 
     - name: Fetch results
-      fetch: src={{ item }} dest=./{{ workload }}_threads_{{ threads }}_{{ date }} fail_on_missing=yes
+      fetch: src={{ item }} dest="{{ dest_directory }}" fail_on_missing=yes
       with_items:
         - load_mongo
         - run_mongo
+
+    - name: Fetch options
+      fetch: src=/home/ubuntu/mongo.options dest={{ dest_directory }} fail_on_missing=yes

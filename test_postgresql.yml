@@ -2,6 +2,9 @@
 - hosts: ec2generator
   gather_facts: false
   user: ubuntu
+  vars:
+    dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+
   tasks:
     - name: Load data
       shell: ./bin/ycsb load pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P workloads/workloada -P /home/ubuntu/postgresql.options -threads 2
@@ -21,7 +24,10 @@
       copy: content={{ run_postgresql }} dest=/home/ubuntu/run_postgresql
 
     - name: Fetch results
-      fetch: src={{ item }} dest=./{{ workload }}_threads_{{ threads }}_{{ date }} fail_on_missing=yes
+      fetch: src={{ item }} dest={{ dest_directory }} fail_on_missing=yes
       with_items:
         - load_postgresql
         - run_postgresql
+
+    - name: Fetch options
+      fetch: src=/home/ubuntu/postgresql.options dest={{ dest_directory }} fail_on_missing=yes
