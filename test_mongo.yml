@@ -7,7 +7,7 @@
       shell: ./bin/ycsb load mongodb -s -P workloads/{{ workload }} -P /home/ubuntu/mongo.options -threads 20
             chdir=/home/ubuntu/ycsb/
       register: load_mongo
-      when: load is defined
+      when: prevent_load is not defined
 
     - name: Run workload
       shell: ./bin/ycsb run mongodb -s -P workloads/{{ workload }} -P /home/ubuntu/mongo.options -threads {{ threads }}

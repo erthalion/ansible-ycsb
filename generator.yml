@@ -42,7 +42,7 @@
       with_items:
         - { name: mongodb-binding, skip: "{{mongodb is not defined}}" }
         - { name: pgjsonb-binding, skip: "{{postgresql is not defined}}" }
-        - { name: mysqljsonb-binding, skip: "{{mysql is not defined}}" }
+        - { name: mysqljson-binding, skip: "{{mysql is not defined}}" }
       when: not item.skip | bool
 
     - name: Set up options

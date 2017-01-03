@@ -5,6 +5,22 @@ import sys
 import enum
 import glob
 import json
+import logging
+import itertools
+
+
+logger = logging.getLogger(__name__)
+
+
+FAILED = "FAILED"
+
+
+class FailedExperiment(Exception):
+    pass
+
+
+class MetricNotFound(Exception):
+    pass
 
 
 class Databases(enum.Enum):
@@ -34,58 +50,62 @@ PATH = "workload?_threads_{}_*/*/run_{}"
 class Parser():
     @staticmethod
     def is_type(operation, metric):
-        return lambda string: string.startswith(
-            "{operation}, {metric}".format(
+        return lambda string: "{operation}, {metric}".format(
                 operation=operation,
                 metric=metric,
-            )
-        )
+            ) in string
 
     @classmethod
     def get_metric(cls, operation, metric):
         def process(data):
+            if FAILED in data["stdout"]:
+                raise FailedExperiment()
+
             line = next(filter(
                 cls.is_type(operation, metric),
                 (row for row in data["stdout_lines"])
             ), "")
+
+            if not line:
+                raise MetricNotFound()
+
             return float(line.split(",")[-1].strip())
 
         return process
 
-    @classmethod
-    def get_throughput(cls, data):
-        return cls.get_metric(Operation.OVERALL.value,
-                               Metric.THROUGHPUT.value)(data)
 
-    @classmethod
-    def get_latency_99(cls, data):
-        return cls.get_metric(Operation.ANY.value,
-                               Metric.LATENCY_99.value)(data)
-
-    @classmethod
-    def get_latency_avg(cls, data):
-        return cls.get_metric(Operation.ANY.value,
-                               Metric.AVG_LATENCY.value)(data)
-
-    @classmethod
-    def get_latency_min(cls, data):
-        return cls.get_metric(Operation.ANY.value,
-                               Metric.MIN_LATENCY.value)(data)
-
-    @classmethod
-    def get_latency_max(cls, data):
-        return cls.get_metric(Operation.ANY.value,
-                               Metric.MAX_LATENCY.value)(data)
+for operation, metric in itertools.product(Operation, Metric):
+    method = Parser.get_metric(operation.value, metric.value)
+    method_name = "get_{}_{}".format(operation.name, metric.name)
+    setattr(Parser, method_name.lower(), method)
 
 
-def thread_info(thread, db, metric):
-    data_files = glob.glob(PATH.format(thread, db))
+def thread_info(threads, db, metric):
+    def get_metric(data):
+        try:
+            return getattr(Parser, metric)(data)
+        except FailedExperiment:
+            logger.error(
+                "Experiment for {} with {} threads is failed".format(
+                db, threads))
+
+            return 0
+
+        except MetricNotFound:
+            logger.error(
+                "Experiment for {} with {} threads does not have metric {}".format(
+                db, threads, metric))
+
+            return 0
+
+
+    data_files = glob.glob(PATH.format(threads, db))
     data_list = [
         json.loads(open(data_file).read())
         for data_file in data_files
     ]
 
-    return [getattr(Parser, metric)(data) for data in data_list]
+    return [get_metric(data) for data in data_list]
 
 
 def main(db, metric):

@@ -4,7 +4,7 @@
   user: ubuntu
   tasks:
     - name: Download mysql config deb file
-      get_url: url=http://dev.mysql.com/get/mysql-apt-config_0.8.0-1_all.deb dest={{ ansible_env.HOME }}
+      get_url: url=http://dev.mysql.com/get/mysql-apt-config_0.8.0-1_all.deb dest=/home/ubuntu/
 
     - name: Install mysql config deb package
       become: yes
