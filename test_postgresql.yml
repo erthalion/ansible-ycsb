@@ -30,4 +30,4 @@
         - run_postgresql
 
     - name: Fetch options
-      fetch: src=/home/ubuntu/postgresql.options dest={{ dest_directory }} fail_on_missing=yes
+      fetch: src=postgresql.options dest={{ dest_directory }} fail_on_missing=yes

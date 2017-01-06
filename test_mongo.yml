@@ -30,4 +30,4 @@
         - run_mongo
 
     - name: Fetch options
-      fetch: src=/home/ubuntu/mongo.options dest={{ dest_directory }} fail_on_missing=yes
+      fetch: src=mongo.options dest={{ dest_directory }} fail_on_missing=yes

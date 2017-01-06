@@ -26,6 +26,9 @@
     - { role: create_instance, instance: "mongodb", instance_volumes: "{{ db_volumes }}", when: mongodb is defined}
 
   tasks:
+    - shell: 'date +%Y%m%d%H%M%S%5N'
+      register: timestamp
+
     - name: Wait for SSH to come up for all instances
       wait_for: host={{item}}
                 port=22
@@ -35,6 +38,8 @@
       with_items: "{{ groups.ec2hosts }}"
 
 - include: generator.yml
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
 
 - include: postgresql.yml
   when: postgresql is defined
@@ -47,9 +52,15 @@
 
 - include: test_postgresql.yml
   when: postgresql is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
 
 - include: test_mysql.yml
   when: mysql is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
 
 - include: test_mongo.yml
   when: mongodb is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
