@@ -5,19 +5,6 @@
 - hosts: localhost
   connection: local
   gather_facts: false
-  vars:
-      keypair: "{{ keypair }}"
-      instance_type: "m4.large"
-      image: "ami-9abea4fb"
-      vpc_subnet_id: "{{ subnet_id }}"
-      region: "us-west-2"
-      availability_zone: "us-west-2c"
-      price: 0.3
-      db_volumes:
-      - device_name: /dev/sda1
-        volume_size: 64
-        volume_type: gp2
-        delete_on_termination: true
 
   roles:
     - { role: create_instance, instance: "generator", instance_volumes: []}
@@ -64,3 +51,5 @@
   when: mongodb is defined
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
+
+- include: cleanup.yml

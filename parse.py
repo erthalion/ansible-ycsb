@@ -108,14 +108,14 @@ def thread_info(threads, db, metric):
     return [get_metric(data) for data in data_list]
 
 
-def main(db, metric):
+def main(db, metric, threads):
     if db:
-        metric_list = thread_info(70, db, metric)
+        metric_list = thread_info(threads, db, metric)
         print("{} {}".format(metric, metric_list))
     else:
-        pg_metric_list = thread_info(70, Databases.PG.value, metric)
-        mysql_metric_list = thread_info(70, Databases.MYSQL.value, metric)
-        mongodb_metric_list = thread_info(70, Databases.MONGO.value, metric)
+        pg_metric_list = thread_info(threads, Databases.PG.value, metric)
+        mysql_metric_list = thread_info(threads, Databases.MYSQL.value, metric)
+        mongodb_metric_list = thread_info(threads, Databases.MONGO.value, metric)
         print("{} postgresql".format(metric, pg_metric_list))
         print("{} mysql".format(metric, mysql_metric_list))
         print("{} mongodb".format(metric, mongodb_metric_list))
@@ -125,5 +125,6 @@ if __name__ == "__main__":
 
     db = sys.argv[1]
     metric = sys.argv[2]
+    threads = sys.argv[3]
 
-    main(db, metric)
+    main(db, metric, threads)

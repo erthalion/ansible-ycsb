@@ -1,0 +1,26 @@
+# vim: set ft=ansible:
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    #- name: Delete instance "{{ item }}"
+    - name: Delete instance
+      ec2:
+        image: "{{ image }}"
+        instance_type: "{{ instance_type }}"
+        keypair: "{{ keypair }}"
+        instance_tags:
+          Name: "{{ item }}"
+        region: "{{ region }}"
+        group: "{{ item }}"
+        vpc_subnet_id: "{{ subnet_id }}"
+        spot_price: "{{ price }}"
+        zone: "{{ availability_zone }}"
+        #wait: true
+        monitoring: no
+        exact_count: 0
+      with_items:
+        - generator
+        - postgresql
+        - mysql
+        - mongodb
