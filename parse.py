@@ -99,7 +99,7 @@ def thread_info(threads, db, metric):
             return 0
 
 
-    data_files = glob.glob(PATH.format(threads, db))
+    data_files = sorted(glob.glob(PATH.format(threads, db)))
     data_list = [
         json.loads(open(data_file).read())
         for data_file in data_files
@@ -108,7 +108,10 @@ def thread_info(threads, db, metric):
     return [get_metric(data) for data in data_list]
 
 
-def main(db, metric, threads):
+def main(db, metric, threads=None):
+    if threads is None:
+        threads = "*"
+
     if db:
         metric_list = thread_info(threads, db, metric)
         print("{} {}".format(metric, metric_list))
@@ -123,8 +126,9 @@ def main(db, metric, threads):
 
 if __name__ == "__main__":
 
-    db = sys.argv[1]
-    metric = sys.argv[2]
-    threads = sys.argv[3]
+    args = iter(sys.argv[1:])
+    db = next(args, None)
+    metric = next(args, None)
+    threads = next(args, None)
 
     main(db, metric, threads)
