@@ -7,10 +7,10 @@
 
   tasks:
     - name: Load data
-      shell: ./bin/ycsb load pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P workloads/workloada -P /home/ubuntu/postgresql.options -threads 2
+      shell: ./bin/ycsb load pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P workloads/{{ workload }} -P /home/ubuntu/postgresql.options -threads 20
             chdir=/home/ubuntu/ycsb/
       register: load_postgresql
-      when: prevent_load is not defined
+      when: prevent_load is undefined
 
     - name: Run workload
       shell: ./bin/ycsb run pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P workloads/{{ workload }} -P /home/ubuntu/postgresql.options -threads {{ threads }}
