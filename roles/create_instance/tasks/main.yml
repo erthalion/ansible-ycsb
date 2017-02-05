@@ -8,6 +8,7 @@
     region: "{{ region }}"
     group: "{{ instance }}"
     vpc_subnet_id: "{{ vpc_subnet_id }}"
+    placement_group: "{{ placement_group }}"
     spot_price: "{{ price }}"
     zone: "{{ availability_zone }}"
     wait: true
