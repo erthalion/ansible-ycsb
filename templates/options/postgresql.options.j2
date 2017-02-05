@@ -10,11 +10,22 @@ flat_key = false
 nested_key = true
 depth = 10
 {% endif %}
+
 {% if field_index is defined %}
 field_index = true
+jsonb_path_ops_no_parse = false
 jsonb_path_ops = false
-{% else %}
+{% endif %}
+
+{% if jsonb_path_ops is defined %}
 jsonb_path_ops = true
+jsonb_path_ops_no_parse = false
+field_index = false
+{% endif %}
+
+{% if jsonb_path_ops_no_parse is defined %}
+jsonb_path_ops_no_parse = true
+jsonb_path_ops = false
 field_index = false
 {% endif %}
 
