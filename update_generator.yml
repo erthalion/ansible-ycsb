@@ -1,0 +1,16 @@
+# vim: set ft=ansible:
+- hosts: ec2generator
+  gather_facts: false
+  user: ubuntu
+  vars:
+    yscb_dir: /home/ubuntu/ycsb
+  tasks:
+    - name: Set up options
+      template:
+        src=templates/options/{{ item.db }}.options.j2
+        dest=/home/ubuntu/{{ item.db }}.options
+      with_items:
+        - { db: postgresql, skip: "{{postgresql is not defined}}" }
+        - { db: mysql, skip: "{{ mysql is not defined }}" }
+        - { db: mongo, skip: "{{ mongodb is not defined }}" }
+      when: not item.skip | bool

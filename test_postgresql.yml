@@ -6,28 +6,9 @@
     dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
 
   tasks:
-    - name: Load data
-      shell: ./bin/ycsb load pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P workloads/{{ workload }} -P /home/ubuntu/postgresql.options -threads 20
-            chdir=/home/ubuntu/ycsb/
-      register: load_postgresql
-      when: prevent_load is undefined
-
-    - name: Run workload
-      shell: ./bin/ycsb run pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar -P workloads/{{ workload }} -P /home/ubuntu/postgresql.options -threads {{ threads }}
-            chdir=/home/ubuntu/ycsb/
-      register: run_postgresql
-
-    - name: Save load to file
-      copy: content={{ load_postgresql }} dest=/home/ubuntu/load_postgresql
-
-    - name: Save result to file
-      copy: content={{ run_postgresql }} dest=/home/ubuntu/run_postgresql
-
-    - name: Fetch results
-      fetch: src={{ item }} dest={{ dest_directory }} fail_on_missing=yes
-      with_items:
-        - load_postgresql
-        - run_postgresql
-
-    - name: Fetch options
-      fetch: src=postgresql.options dest={{ dest_directory }} fail_on_missing=yes
+    - include: test.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
+        db: postgresql
+        db_parameters: pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar
+      with_items: "{{ thread_list }}"

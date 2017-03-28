@@ -1,0 +1,34 @@
+# vim: set ft=ansible:
+- name: Load data to {{ db }} [{{ threads }} threads]
+  shell: ./bin/ycsb load {{ db_parameters }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
+        chdir=/home/ubuntu/ycsb/
+  register: load
+  when: skip_load == false
+
+- name: Cache for {{ db }} queries
+  shell: ./bin/ycsb run {{ db_parameters }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
+        chdir=/home/ubuntu/ycsb/
+  when: skip_test == false
+
+- name: Run workload for {{ db }} [{{ threads }} threads]
+  shell: ./bin/ycsb run {{ db_parameters }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
+        chdir=/home/ubuntu/ycsb/
+  register: run
+  when: skip_test == false
+
+- name: Save load to file for {{ db }}
+  copy: content={{ load }} dest=/home/ubuntu/load_{{ db }}
+
+- name: Save result to file for {{ db }}
+  copy: content={{ run }} dest=/home/ubuntu/run_{{ db }}
+
+- name: Fetch results for {{ db }}
+  fetch: src={{ result_type }} dest={{ dest_directory }}
+  with_items:
+    - load_{{ db }}
+    - run_{{ db }}
+  loop_control:
+    loop_var: result_type
+
+- name: Fetch options for {{ db }}
+  fetch: src={{ db }}.options dest={{ dest_directory }}

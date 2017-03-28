@@ -1,0 +1,23 @@
+# vim: set ft=ansible:
+- hosts: ec2mysql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Template Mysql configuration file
+      become: yes
+      action: template
+        src=templates/confs/{{ item }}.cnf.j2
+        dest=/etc/mysql/mysql.conf.d/{{ item }}.cnf
+      with_items:
+        - mysqld
+      notify:
+        - restart mysql
+
+    - meta: flush_handlers
+
+  handlers:
+    - name: restart mysql
+      become: yes
+      service:
+        name=mysql
+        state=restarted

@@ -14,11 +14,13 @@
       become: yes
       apt: update_cache=yes
            upgrade=dist
+           force=yes
 
     - name: Install dependencies
       become: yes
       apt: name={{item}}
            state=installed
+           force=yes
       with_items:
         - mysql-server
         - python-mysqldb

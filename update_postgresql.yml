@@ -1,0 +1,30 @@
+# vim: set ft=ansible:
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Template Postgresql configuration file
+      become: yes
+      action: template
+        src=templates/confs/{{ item }}.conf.j2
+        dest=/etc/postgresql/9.5/main/{{ item }}.conf
+      with_items:
+        - pg_hba
+        - postgresql
+      notify:
+        - restart postgresql
+
+    - meta: flush_handlers
+
+    - name: Cache prewarm
+      shell: psql ycsb -U {{ db_user }} -c "create extension if not exists pg_prewarm; select pg_prewarm('usertable');"
+
+  environment:
+    PGPASSWORD: "{{ db_pass }}"
+
+  handlers:
+    - name: restart postgresql
+      become: yes
+      service:
+        name=postgresql
+        state=restarted

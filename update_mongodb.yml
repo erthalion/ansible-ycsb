@@ -1,0 +1,21 @@
+# vim: set ft=ansible:
+- hosts: ec2mongodb
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Template the MongoDB configuration file
+      become: yes
+      action: template
+        src=templates/confs/mongod.conf.j2
+        dest=/etc/mongod.conf
+      notify:
+        - restart mongodb
+
+    - meta: flush_handlers
+
+  handlers:
+    - name: restart mongodb
+      become: yes
+      service:
+        name=mongod
+        state=restarted

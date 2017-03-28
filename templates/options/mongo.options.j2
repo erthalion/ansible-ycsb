@@ -37,3 +37,14 @@ select_one_field = true
 select_field_path = field2,field3,field4,field5,field6,field7,field8,field9,field10
 select_all_fields = false
 {% endif %}
+
+{% if update_one is defined %}
+update_one_field = true
+update_field = "FIELD1"
+update_all_fields = false
+{% endif %}
+
+{% if update_all is defined %}
+update_one_field = false
+update_all_fields = true
+{% endif %}

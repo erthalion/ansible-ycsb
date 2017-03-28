@@ -47,6 +47,17 @@ select_field_path = 'FIELD100'
 select_all_fields = false
 {% endif %}
 
+{% if update_one is defined %}
+update_one_field = true
+update_field = "FIELD1"
+update_all_fields = false
+{% endif %}
+
+{% if update_all is defined %}
+update_one_field = false
+update_all_fields = true
+{% endif %}
+
 {% if select_slice is defined %}
 fieldcount = 100
 select_one_field = true
