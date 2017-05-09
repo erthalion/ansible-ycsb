@@ -5,6 +5,10 @@
   vars:
     yscb_dir: /home/ubuntu/ycsb
   tasks:
+    - name: install python 2
+      raw: sudo bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qy python-minimal)"
+      become: true
+
     - name: Update packages
       become: yes
       apt: update_cache=yes

@@ -3,6 +3,10 @@
   gather_facts: false
   user: ubuntu
   tasks:
+    - name: install python 2
+      raw: sudo bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qy python-minimal)"
+      become: true
+
     - name: Add apt key
       become: yes
       apt_key: id=ACCC4CF8 url=https://www.postgresql.org/media/keys/ACCC4CF8.asc state=present
@@ -13,7 +17,7 @@
         repo={{item}}
         state=present
       with_items:
-        - deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main
+        - deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main
 
     - name: Update packages
       become: yes
@@ -25,15 +29,16 @@
       apt: name={{item}}
            state=installed
       with_items:
-        - postgresql-9.5
+        - postgresql-9.6
         - libpq-dev
         - python-psycopg2
+        - sysstat
 
     - name: Template Postgresql configuration file
       become: yes
       action: template
         src=templates/confs/{{ item }}.conf.j2
-        dest=/etc/postgresql/9.5/main/{{ item }}.conf
+        dest=/etc/postgresql/9.6/main/{{ item }}.conf
       with_items:
         - pg_hba
         - postgresql

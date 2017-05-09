@@ -1,0 +1,17 @@
+db_user: "test"
+db_pass: "123456"
+keypair: "{{ keypair }}"
+instance_type: "m4.large"
+#image: "ami-9abea4fb"
+image: "ami-efd0428f"
+vpc_subnet_id: "{{ subnet_id }}"
+region: "us-west-2"
+availability_zone: "us-west-2c"
+placement_group: "ycsb"
+price: 0.3
+generator_ami_file: "generator_ami"
+db_volumes:
+- device_name: /dev/sda1
+  volume_size: 64
+  volume_type: gp2
+  delete_on_termination: true
