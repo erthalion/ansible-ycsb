@@ -1,0 +1,4 @@
+# Activity reports 60 samples every minute everyday
+PATH=/usr/lib/sysstat:/usr/sbin:/usr/sbin:/usr/bin:/sbin:/bin
+
+* * * * * root command -v debian-sa1 > /dev/null && debian-sa1 -S XALL 60 1

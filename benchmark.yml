@@ -31,6 +31,8 @@
                 state=started
       with_items: "{{ groups.ec2hosts }}"
 
+- include: monitoring.yml
+
 - include: generator.yml
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"

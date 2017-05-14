@@ -1,0 +1,39 @@
+# vim: set ft=ansible:
+- hosts: ec2hosts
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: install python 2
+      raw: sudo bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qy python-minimal)"
+      become: true
+
+    - name: Update packages
+      become: yes
+      apt: update_cache=yes
+           upgrade=dist
+
+    - name: Install dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - sysstat
+
+    - name: Configure sar
+      template:
+        src=templates/confs/sysstat.j2
+        dest=/etc/default/sysstat
+      become: true
+
+    - name: Configure sar cron job
+      template:
+        src=templates/confs/sysstat.cron.j2
+        dest=/etc/cron.d/sysstat
+      become: true
+
+  handlers:
+    - name: restart sysstat
+      become: yes
+      service:
+        name=sysstat
+        state=restarted
