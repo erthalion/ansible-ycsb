@@ -8,7 +8,7 @@
 - name: Cache for {{ db }} queries
   shell: ./bin/ycsb run {{ db_parameters }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
         chdir=/home/ubuntu/ycsb/
-  when: skip_test == false
+  when: skip_cache == false
 
 - name: Run workload for {{ db }} [{{ threads }} threads]
   shell: ./bin/ycsb run {{ db_parameters }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
@@ -32,13 +32,3 @@
 
 - name: Fetch options for {{ db }}
   fetch: src={{ db }}.options dest={{ dest_directory }}
-
-- name: Collect sar metrics
-  shell: sar -A
-  register: sar
-
-- name: Save metrics to file
-  copy: content={{ sar }} dest=/home/ubuntu/sar_{{ db }}
-
-- name: Fetch metrics
-  fetch: src=sar_{{ db }} dest={{ dest_directory }}

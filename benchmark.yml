@@ -37,99 +37,91 @@
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
   when: generator_ami is not defined
-  ignore_errors: yes
 
 - include: update_generator.yml
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
   when: generator_ami is defined
-  ignore_errors: yes
 
 ########################################################################
 
 - include: postgresql.yml
   when: postgresql is defined and postgresql_ami is not defined
-  ignore_errors: yes
 
 - include: update_postgresql.yml
   when: postgresql is defined and postgresql_ami is defined
-  ignore_errors: yes
 
 ########################################################################
 
 - include: mysql.yml
   when: mysql is defined and mysql_ami is not defined
-  ignore_errors: yes
 
 - include: update_mysql.yml
   when: mysql is defined and mysql_ami is defined
-  ignore_errors: yes
 
 ########################################################################
 
 - include: mongodb.yml
   when: mongodb is defined and mongodb_ami is not defined
-  ignore_errors: yes
 
 - include: update_mongodb.yml
   when: mongodb is defined and mongodb_ami is defined
-  ignore_errors: yes
 
 ########################################################################
 
 - include: test_postgresql.yml
   when: postgresql is defined and threads is defined
-  ignore_errors: yes
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [ "{{ threads }}" ]
     skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
 
 - include: test_postgresql.yml
   when: postgresql is defined and all_threads is defined
-  ignore_errors: yes
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
 
 - include: test_mysql.yml
   when: mysql is defined and threads is defined
-  ignore_errors: yes
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [ "{{ threads }}" ]
     skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
 
 - include: test_mysql.yml
   when: mysql is defined and all_threads is defined
-  ignore_errors: yes
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
 
 - include: test_mongo.yml
   when: mongodb is defined and threads is defined
-  ignore_errors: yes
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [ "{{ threads }}" ]
     skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
 
 - include: test_mongo.yml
   when: mongodb is defined and all_threads is defined
-  ignore_errors: yes
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
     skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
 
 - include: cleanup.yml
   when: prevent_cleanup is undefined or prevent_cleanup|bool == false

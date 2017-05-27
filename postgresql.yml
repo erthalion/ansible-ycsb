@@ -28,6 +28,11 @@
         - postgresql-9.6
         - libpq-dev
         - python-psycopg2
+        - python-pip
+
+    - name: Install pg_view
+      become: yes
+      pip: name=pg_view
 
     - name: Template Postgresql configuration file
       become: yes
@@ -71,6 +76,9 @@
 
     - name: Create usertable with jsonb
       shell: psql ycsb -U {{ db_user }} < /home/ubuntu/pg_init.sql
+
+    - name: Start pg_view
+      command: pg_view -o json > /home/ubuntu/postgresql.json &
 
   environment:
     PGPASSWORD: "{{ db_pass }}"

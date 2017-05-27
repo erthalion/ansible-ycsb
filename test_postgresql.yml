@@ -12,3 +12,12 @@
         db: postgresql
         db_parameters: pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar
       with_items: "{{ thread_list }}"
+
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - include: metrics.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+        db: postgresql

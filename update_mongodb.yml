@@ -3,19 +3,24 @@
   gather_facts: false
   user: ubuntu
   tasks:
+    - name: Ensure mongodb is running
+      service: name=mongodb state=started enabled=yes
+      become: yes
+
     - name: Template the MongoDB configuration file
       become: yes
       action: template
         src=templates/confs/mongod.conf.j2
         dest=/etc/mongod.conf
-      notify:
-        - restart mongodb
 
     - meta: flush_handlers
+
+    - name: Start pg_view
+      command: mongostat --json > /home/ubungu/mongodb.json &
 
   handlers:
     - name: restart mongodb
       become: yes
       service:
-        name=mongod
+        name=mongodb
         state=restarted

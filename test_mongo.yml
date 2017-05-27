@@ -12,3 +12,12 @@
         db: mongo
         db_parameters: mongodb
       with_items: "{{ thread_list }}"
+
+- hosts: ec2mongodb
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - include: metrics.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+        db: mongodb

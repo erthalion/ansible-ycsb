@@ -3,11 +3,25 @@
   gather_facts: false
   user: ubuntu
   tasks:
+    - name: Install dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - postgresql-9.6
+        - libpq-dev
+        - python-psycopg2
+        - python-pip
+
+    - name: Install pg_view
+      become: yes
+      pip: name=pg_view
+
     - name: Template Postgresql configuration file
       become: yes
       action: template
         src=templates/confs/{{ item }}.conf.j2
-        dest=/etc/postgresql/9.5/main/{{ item }}.conf
+        dest=/etc/postgresql/9.6/main/{{ item }}.conf
       with_items:
         - pg_hba
         - postgresql
@@ -16,8 +30,11 @@
 
     - meta: flush_handlers
 
-    - name: Cache prewarm
-      shell: psql ycsb -U {{ db_user }} -c "create extension if not exists pg_prewarm; select pg_prewarm('usertable');"
+    - name: Start pg_view
+      shell: pg_view -o json > /tmp/postgresql.json &
+      become: yes
+      become_user: postgres
+      register: pg_view_start
 
   environment:
     PGPASSWORD: "{{ db_pass }}"

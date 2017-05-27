@@ -76,6 +76,9 @@
     - name: Init collection
       shell: mongo 127.0.0.1:27017/ycsb -u {{ db_user }} -p {{ db_pass }} < /home/ubuntu/mongo.js
 
+    - name: Start pg_view
+      command: mongostat --json > /home/ubungu/mongodb.json &
+
   handlers:
     - name: restart mongodb
       become: yes

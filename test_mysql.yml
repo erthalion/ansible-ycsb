@@ -12,3 +12,12 @@
         db: mysql
         db_parameters: mysqljson -s -cp bindings/lib/mysql-connector-java-5.1.38-bin.jar
       with_items: "{{ thread_list }}"
+
+- hosts: ec2mysql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - include: metrics.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+        db: mysql
