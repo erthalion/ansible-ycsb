@@ -15,8 +15,8 @@
 
     - meta: flush_handlers
 
-    - name: Start pg_view
-      command: mongostat --json > /home/ubungu/mongodb.json &
+    - name: Start mongostat
+      shell: mongostat --json > /tmp/mongodb.json &
 
   handlers:
     - name: restart mongodb
