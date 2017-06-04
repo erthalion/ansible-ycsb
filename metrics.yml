@@ -1,13 +1,10 @@
 # vim: set ft=ansible:
 - name: Collect sar metrics
-  shell: sar -A
+  shell: sar -A -f /home/ubuntu/sar_metrics > /home/ubuntu/sar_{{ db }}
   register: sar
-
-- name: Save metrics to file
-  copy: content={{ sar }} dest=/home/ubuntu/sar_{{ db }}
 
 - name: Fetch metrics
   fetch: src=sar_{{ db }} dest={{ dest_directory }}
 
 - name: Fetch database-specific metrics
-  fetch: src=/tmp/{{ db }}.json dest={{ dest_directory }} fail_on_missing=true
+  fetch: src=/tmp/{{ db }}.json dest={{ dest_directory }}

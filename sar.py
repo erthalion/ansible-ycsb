@@ -5,10 +5,10 @@ import json
 from itertools import takewhile, islice
 
 
-def main(file_name, metric_type=None, single_column=False, all=False):
+def parse_sar_file(file_name, metric_type=None, single_column=False, all=False):
     with open(file_name) as sar_file:
-        sar_data = json.loads(sar_file.read())
-        data = islice(iter(sar_data["stdout_lines"]), 4, None)
+        sar_data = sar_file.read().split("\n")
+        data = islice(iter(sar_data), 4, None)
         block = True
 
         while block:
@@ -34,13 +34,13 @@ def main(file_name, metric_type=None, single_column=False, all=False):
 
 if __name__ == "__main__":
     if sys.argv[2] == "filter" and sys.argv[3] == "column":
-        main(sys.argv[1], metric_type=sys.argv[4], single_column=True)
+        parse_sar_file(sys.argv[1], metric_type=sys.argv[4], single_column=True)
 
     if sys.argv[2] == "filter":
-        main(sys.argv[1], metric_type=sys.argv[3])
+        parse_sar_file(sys.argv[1], metric_type=sys.argv[3])
 
     if sys.argv[2] == "all":
-        main(sys.argv[1], all=True)
+        parse_sar_file(sys.argv[1], all=True)
 
     if sys.argv[2] == "list":
-        main(sys.argv[1])
+        parse_sar_file(sys.argv[1])
