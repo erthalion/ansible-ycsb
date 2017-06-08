@@ -1,4 +1,8 @@
+{% if json_type is defined %}
+create table usertable(data json);
+{% else %}
 create table usertable(data jsonb);
+{% endif %}
 
 {% if field_index is defined and nested is defined %}
 create index usertable_data_idx on usertable ((data->>{% for i in range(9, 0, -1) %}'YCSB_KEY{{i}}'->>{% endfor %}'YCSB_KEY'));

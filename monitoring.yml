@@ -7,6 +7,16 @@
       raw: sudo bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qy python-minimal)"
       become: true
 
+    - name: Create apt-daily directory
+      become: yes
+      file: path=/etc/systemd/system/apt-daily.timer.d state=directory
+
+    - name: Disable unattended-upgrades
+      become: yes
+      action: template
+        src=templates/confs/apt-daily.timer.conf
+        dest=/etc/systemd/system/apt-daily.timer.d/apt-daily.timer.conf
+
     - pause:
         seconds: 5
 
