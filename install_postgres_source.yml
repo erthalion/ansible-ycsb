@@ -1,0 +1,71 @@
+# vim: set ft=ansible:
+- name: Install dependencies
+  become: yes
+  apt: name={{item}}
+       state=installed
+  with_items:
+    - build-essential
+    - libreadline-dev
+    - zlib1g-dev
+    - flex
+    - bison
+    - libxml2-dev
+    - libxslt-dev
+    - libssl-dev
+    - git
+
+- name: Add postgres group
+  become: yes
+  group:
+    name: postgres
+    gid: 999
+    state: present
+
+- name: Add postgres user
+  become: yes
+  user:
+    name: postgres
+    uid: 999
+    group: postgres
+
+- name: Clone PG source
+  become: yes
+  become_user: postgres
+  git:
+    repo: https://github.com/postgres/postgres.git
+    dest: /home/postgres/postgres
+
+- name: Configure PG
+  become: yes
+  become_user: postgres
+  shell: ./configure --prefix=/home/postgres/build
+        chdir=/home/postgres/postgres
+
+- name: Build PG
+  become: yes
+  become_user: postgres
+  shell: make chdir=/home/postgres/postgres
+
+- name: Install PG
+  become: yes
+  become_user: postgres
+  shell: make install chdir=/home/postgres/postgres
+
+- name: Create data directory
+  become: yes
+  become_user: postgres
+  file: path=/home/postgres/build/data state=directory owner=postgres
+
+- name: Init PG
+  become: yes
+  become_user: postgres
+  shell: ./bin/initdb -D data chdir=/home/postgres/build/
+
+- name: Start PG
+  shell: ./bin/pg_ctl -D data start chdir=/home/postgres/build/
+  become: yes
+  become_user: postgres
+
+- name: Create socket directory
+  become: yes
+  file: path=/var/run/postgresql state=directory owner=postgres

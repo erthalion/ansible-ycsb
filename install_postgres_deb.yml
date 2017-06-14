@@ -1,0 +1,27 @@
+# vim: set ft=ansible:
+- name: Add apt key
+  become: yes
+  apt_key: id=ACCC4CF8 url=https://www.postgresql.org/media/keys/ACCC4CF8.asc state=present
+
+- name: Update source.list
+  become: yes
+  apt_repository:
+    repo={{item}}
+    state=present
+  with_items:
+    - deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main
+
+- name: Update packages
+  become: yes
+  apt: update_cache=yes
+       upgrade=dist
+
+- name: Install dependencies
+  become: yes
+  apt: name={{item}}
+       state=installed
+  with_items:
+    - postgresql-9.6
+    - libpq-dev
+    - python-psycopg2
+    - python-pip
