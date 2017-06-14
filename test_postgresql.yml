@@ -10,7 +10,7 @@
       vars:
         dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
         db: postgresql
-        db_parameters: pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar
+        db_parameters: pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar {% if table_name is defined %}-n {{ table_name }}{% endif %}
       with_items: "{{ thread_list }}"
 
 - hosts: ec2postgresql
