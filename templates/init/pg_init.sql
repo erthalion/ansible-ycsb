@@ -19,12 +19,12 @@ alter table usertable set (autovacuum_analyze_threshold = 10000);
 
 {% if sql_view is defined %}
 create type ycsb_row as (
-	YCSB_KEY VARCHAR(255) PRIMARY KEY,
-	FIELD0 TEXT, FIELD1 TEXT,
-	FIELD2 TEXT, FIELD3 TEXT,
-	FIELD4 TEXT, FIELD5 TEXT,
-	FIELD6 TEXT, FIELD7 TEXT,
-	FIELD8 TEXT, FIELD9 TEXT
+	"YCSB_KEY" VARCHAR(255),
+	"FIELD2" TEXT, "FIELD3" TEXT,
+	"FIELD4" TEXT, "FIELD5" TEXT,
+	"FIELD6" TEXT, "FIELD7" TEXT,
+	"FIELD8" TEXT, "FIELD9" TEXT
+	"FIELD10" TEXT, "FIELD11" TEXT,
 );
 
 create view usertable_view as
