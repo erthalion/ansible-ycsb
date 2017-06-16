@@ -32,3 +32,21 @@ create view usertable_view as
     from usertable,
          jsonb_populate_record(NULL::ycsb_row, data) r;
 {% endif %}
+
+{% if jsonb_check is defined %}
+alter table usertable add constraint field_constrains check (data ? 'FIELD0');
+{% endif %}
+
+{% if jsonb_check_multiple is defined %}
+alter table usertable add constraint field_constrains
+check (data ? 'FIELD0' {% for i in range(1, 9) %} and data ? 'FIELD{{i}}'{% endfor %});
+{% endif %}
+
+{% if sql_check is defined %}
+alter table usertable add constraint field_constrains check (FIELD0 is not null);
+{% endif %}
+
+{% if sql_check_multiple is defined %}
+alter table usertable add constraint field_constrains
+check (FIELD0 is not null {% for i in range(1, 9) %} and FIELD{{i}} is not null{% endfor %});
+{% endif %}
