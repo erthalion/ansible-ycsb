@@ -23,8 +23,8 @@ create type ycsb_row as (
 	"FIELD2" TEXT, "FIELD3" TEXT,
 	"FIELD4" TEXT, "FIELD5" TEXT,
 	"FIELD6" TEXT, "FIELD7" TEXT,
-	"FIELD8" TEXT, "FIELD9" TEXT
-	"FIELD10" TEXT, "FIELD11" TEXT,
+	"FIELD8" TEXT, "FIELD9" TEXT,
+	"FIELD10" TEXT, "FIELD11" TEXT
 );
 
 create view usertable_view as
