@@ -51,6 +51,6 @@ alter table usertable add constraint field_constrains
 check (FIELD0 is not null {% for i in range(1, 9) %} and FIELD{{i}} is not null{% endfor %});
 {% endif %}
 
-{% if toast_check %}
-alter table usertable alter column data set storage EXTERNAL;
+{% if toast_check is defined %}
+alter table usertable alter column data set storage {{ toast_check }};
 {% endif %}
