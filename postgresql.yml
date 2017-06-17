@@ -78,9 +78,20 @@
     - name: Copy init sql
       template:
         src=templates/init/pg_init.sql
+        dest=/home/ubuntu/pg_init.sql
+      when: postgres_from_deb is defined
+
+    - name: Create usertable with jsonb
+      shell: psql ycsb -U {{ db_user }} < /home/ubuntu/pg_init.sql
+      when: postgres_from_deb is defined
+
+    - name: Copy init sql
+      template:
+        src=templates/init/pg_init.sql
         dest=/home/postgres/pg_init.sql
       become: yes
       become_user: postgres
+      when: postgres_from_source is defined
 
     - name: Create usertable with jsonb
       shell: psql -h /var/run/postgresql ycsb -U {{ db_user }} < /home/postgres/pg_init.sql
@@ -88,6 +99,7 @@
       become_user: postgres
       environment:
         PATH: $PATH:/home/postgres/build/bin
+      when: postgres_from_source is defined
 
     - name: Start pg_view
       command: pg_view -o json > /home/ubuntu/postgresql.json &
