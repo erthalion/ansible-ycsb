@@ -10,8 +10,17 @@
       vars:
         dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
         db: postgresql
-        db_parameters: pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar {% if table_name is defined %}-n {{ table_name }}{% endif %}
+        db_parameters: pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar
       with_items: "{{ thread_list }}"
+      when: sql is not defined
+
+    - include: test.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
+        db: postgresql
+        db_parameters: jdbc -s -cp bindings/lib/postgresql-9.4.1207.jar
+      with_items: "{{ thread_list }}"
+      when: sql is defined
 
 - hosts: ec2postgresql
   gather_facts: false
