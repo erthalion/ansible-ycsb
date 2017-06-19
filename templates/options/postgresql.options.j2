@@ -1,5 +1,5 @@
-recordcount=1000000
-operationcount=1000000
+recordcount={{ recordcount or 1000000 }}
+operationcount={{ operationcount or 1000000 }}
 db.driver=org.postgresql.Driver
 db.url=jdbc:postgresql://{{ groups['ec2postgresql'][0] }}:5432/ycsb
 db.user={{ db_user }}
@@ -63,4 +63,9 @@ fieldcount = 100
 select_one_field = true
 select_field_path = 'FIELD2', data->>'FIELD3', data->>'FIELD4', data->>'FIELD5', data->>'FILED6', data->>'FIELD7', data->>'FIELD8', data->>'FIELD9', data->>'FIELD10' 
 select_all_fields = false
+{% endif %}
+
+{% if custom_size is defined %}
+fieldcount = {{ field_count or 100 }}
+fieldlength = {{ field_length or 200 }}
 {% endif %}
