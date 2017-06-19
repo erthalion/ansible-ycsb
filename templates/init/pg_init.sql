@@ -1,13 +1,13 @@
 {% if sql is not defined %}
     {% if json_type is defined %}
-    create table usertable(data json);
+    create table if not exists usertable(data json);
     {% else %}
-    create table usertable(data jsonb);
+    create table if not exists usertable(data jsonb);
     {% endif %}
 {% endif %}
 
 {% if sql is defined %}
-create table usertable (
+create table if not exists usertable (
 	YCSB_KEY VARCHAR(255),
 	FIELD0 TEXT, FIELD1 TEXT,
 	FIELD2 TEXT, FIELD3 TEXT,
@@ -16,7 +16,7 @@ create table usertable (
 	FIELD8 TEXT, FIELD9 TEXT
 );
 
-create index usertable_ycsb_key_idx on usertable (YCSB_KEY);
+create index if not exists usertable_ycsb_key_idx on usertable (YCSB_KEY);
 
 -- create view usertable_view as
     -- select r.*
@@ -25,11 +25,11 @@ create index usertable_ycsb_key_idx on usertable (YCSB_KEY);
 {% endif %}
 
 {% if field_index is defined and nested is defined %}
-create index usertable_data_idx on usertable ((data->>{% for i in range(9, 0, -1) %}'YCSB_KEY{{i}}'->>{% endfor %}'YCSB_KEY'));
+create index if not exists usertable_data_idx on usertable ((data->>{% for i in range(9, 0, -1) %}'YCSB_KEY{{i}}'->>{% endfor %}'YCSB_KEY'));
 {% elif field_index is defined %}
-create index usertable_data_idx on usertable ((data->>'YCSB_KEY'));
+create index if not exists usertable_data_idx on usertable ((data->>'YCSB_KEY'));
 {% else %}
-create index usertable_data_idx on usertable using gin(data jsonb_path_ops);
+create index if not exists usertable_data_idx on usertable using gin(data jsonb_path_ops);
 {% endif %}
 
 alter table usertable set (autovacuum_vacuum_scale_factor = 0.0);
@@ -38,7 +38,7 @@ alter table usertable set (autovacuum_analyze_scale_factor = 0.0);
 alter table usertable set (autovacuum_analyze_threshold = 10000);
 
 {% if jsonb_check is defined %}
-alter table usertable add constraint field_constrains check (data ? 'FIELD0');
+alter table usertable add constraint field_constrains check (data ? 'FIELD2');
 {% endif %}
 
 {% if jsonb_check_multiple is defined %}
