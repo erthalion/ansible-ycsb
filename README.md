@@ -7,7 +7,7 @@ AWS EC2 using my [fork](https://github.com/brianfrankcooper/YCSB) of
 
 List of available options:
 
-# Databases
+### Databases
 
 * postgresql - perform tests for PostgreSQL jsonb
 * mysql - perform tests for MySQL json
@@ -22,7 +22,7 @@ List of available options:
 * toast_check - change column storage type for PostgreSQL
 * sql - test relation instead of document for PostgreSQL
 
-# AWS
+### AWS
 
 * subnet_id - VPC subnet id
 * keypair - your AWS keypair
@@ -31,7 +31,7 @@ List of available options:
 * mysql_ami - prepared snapshot for MySQL
 * mongodb_ami - prepared snapshot for MongoDB
 
-# YCSB
+### YCSB
 
 * workload - YCSB [workload type](https://github.com/brianfrankcooper/YCSB/wiki/Core-Workloads)
 * threads - amount of clients/threads for workload
