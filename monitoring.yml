@@ -20,10 +20,19 @@
     - pause:
         seconds: 5
 
+    - name: Remove lock file
+      become: yes
+      file: path=/var/lib/dpkg/lock state=absent
+
     - name: Update packages
       become: yes
       apt: update_cache=yes
            upgrade=dist
+      register: update_result
+      until: update_result.stderr == ""
+      retries: 10
+      delay: 1
+      ignore_errors: yes
 
     - name: Install dependencies
       become: yes
