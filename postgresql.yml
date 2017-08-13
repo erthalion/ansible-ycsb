@@ -15,11 +15,19 @@
            state=installed
       with_items:
         - python-psycopg2
-        - python-pip
+        - python3-pip
+
+    - name: Update setuptools (for pg_view)
+      become: yes
+      pip: name=setuptools
+           executable=pip3
+           state=latest
+           extra_args='--upgrade'
 
     - name: Install pg_view
       become: yes
       pip: name=pg_view
+           executable=pip3
 
     - name: Template Postgresql configuration file
       become: yes
