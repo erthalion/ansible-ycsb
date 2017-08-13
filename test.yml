@@ -1,11 +1,8 @@
 # vim: set ft=ansible:
-- name: Set load_db_parameters
-  set_fact:
-    load_db_parameters: "{{ db_parameters }}"
-  when: load_db_parameters is not defined
+- debug: msg="Test was started with db {{ db }}, db_parameters {{ db_parameters }}"
 
 - name: Load data to {{ db }} [{{ threads }} threads]
-  shell: ./bin/ycsb load {{ load_db_parameters }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
+  shell: ./bin/ycsb load {{ load_db_parameters | default(db_parameters) }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
         chdir=/home/ubuntu/ycsb/
   register: load
   when: skip_load == false
