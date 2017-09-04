@@ -1,0 +1,17 @@
+{
+    "mysql": true,
+    "keypair": "erthalion_oregon",
+    "subnet_id": "subnet-83cea8da",
+    "ssh_key": "/home/erthalion/.ssh/erthalion_oregon.pem",
+    "workload": "workloadc",
+    "field_index": true,
+    "postgres_from_deb": true,
+    "journaled": true,
+    "prevent_cache": true,
+    "prevent_cleanup": true,
+    "generator_ami": "ami-28b65d50",
+    "postgresql_ami": "ami-f942a181",
+    "mysql_ami": "ami-e8fd1590",
+    "mongodb_ami": "ami-c343a0bb",
+    "mysql8": true
+}

@@ -12,7 +12,11 @@ storage:
 {% if transaction_method is defined %}
   wiredTiger:
       engineConfig:
-          configString: "transaction_sync=(enabled=true,method=fsync)"
+          configString: "transaction_sync=(enabled=true,method=fsync),checkpoint=(wait=600,log_size=0),eviction=(threads_max=16, threads_min=8)"
+{% else %}
+  wiredTiger:
+      engineConfig:
+          configString: "checkpoint=(wait=600,log_size=0),eviction=(threads_max=16, threads_min=8)"
 {% endif %}
 
 #  mmapv1:

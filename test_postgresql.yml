@@ -10,7 +10,7 @@
       vars:
         dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
         db: postgresql
-        db_parameters: pgjsonb -s -cp bindings/lib/postgresql-9.4.1207.jar
+        db_parameters: pgjsonb -s -cp jdbc-binding/lib/postgresql-9.4.1207.jar
       with_items: "{{ thread_list }}"
       when: sql is not defined
 
