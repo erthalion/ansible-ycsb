@@ -1,0 +1,124 @@
+# vim: set ft=ansible:
+- hosts: ec2citus
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Prepare apt
+      become: yes
+      shell: curl https://install.citusdata.com/community/deb.sh | sudo bash
+
+    - name: Install citus
+      become: yes
+      apt: name=postgresql-9.6-citus-7.0
+           state=installed
+
+    - name: Install pg_view dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - python-psycopg2
+        - python3-pip
+
+    - name: Update setuptools (for pg_view)
+      become: yes
+      pip: name=setuptools
+           executable=pip3
+           state=latest
+           extra_args='--upgrade'
+
+    - name: Install pg_view
+      become: yes
+      pip: name=pg_view
+           executable=pip3
+
+    - name: Template Postgresql configuration file
+      become: yes
+      action: template
+        src=templates/confs/{{ item.source }}.conf.j2
+        dest=/etc/postgresql/9.6/main/{{ item.target }}.conf
+      with_items:
+        - { source: "pg_hba", target: "pg_hba" }
+        - { source: "citus", target: "postgresql" }
+      notify:
+        - restart postgresql
+
+    - meta: flush_handlers
+
+    - name: Create database directory
+      become: yes
+      become_user: postgres
+      file: path=/home/postgres/data state=directory owner=postgres
+
+    - name: Init database
+      become: yes
+      become_user: postgres
+      shell: initdb -D /home/postgres/data
+
+    - name: Start database
+      become: yes
+      become_user: postgres
+      shell: pg_ctl -D /home/postgres/data -o "-p 9700" -l /home/postgres/logfile start
+
+    - name: Create user
+      postgresql_user:
+        name={{ db_user }}
+        password={{ db_pass }}
+        role_attr_flags=CREATEDB,SUPERUSER
+        state=present
+        encrypted=yes
+      become: yes
+      become_user: postgres
+      become_method: sudo
+
+    - name: Create user database
+      postgresql_db:
+        name={{ db_user }}
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+
+    - name: Create YCSB database
+      postgresql_db:
+        name=ycsb
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+
+    - name: Copy init sql
+      template:
+        src=templates/init/pg_init.sql
+        dest=/home/ubuntu/pg_init.sql
+      when: postgres_from_deb is defined
+
+    - name: Create usertable with jsonb
+      shell: psql ycsb -U {{ db_user }} < /home/ubuntu/pg_init.sql
+      when: postgres_from_deb is defined
+
+    - name: Copy init sql
+      template:
+        src=templates/init/pg_init.sql
+        dest=/home/postgres/pg_init.sql
+      become: yes
+      become_user: postgres
+      when: postgres_from_source is defined
+
+    - name: Create usertable with jsonb
+      shell: psql -h /var/run/postgresql ycsb -U {{ db_user }} < /home/postgres/pg_init.sql
+      become: yes
+      become_user: postgres
+      environment:
+        PATH: $PATH:/home/postgres/build/bin
+      when: postgres_from_source is defined
+
+    - name: Start pg_view
+      command: pg_view -o json > /home/ubuntu/postgresql.json &
+
+  environment:
+    PGPASSWORD: "{{ db_pass }}"
+    PATH: $PATH:/usr/lib/postgresql/9.6/bin
+
+  handlers:
+    - name: restart postgresql
+      become: yes
+      service:
+        name=postgresql
+        state=restarted
