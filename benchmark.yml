@@ -13,6 +13,9 @@
     - { role: create_instance, instance: "postgresql", instance_volumes: "{{ db_volumes }}", when: postgresql is defined and postgresql_ami is not defined}
     - { role: create_instance, instance: "postgresql", image: "{{ postgresql_ami }}", instance_volumes: "{{ db_volumes }}", when: postgresql is defined and postgresql_ami is defined}
 
+    - { role: create_instance, instance: "citus", instance_volumes: "{{ db_volumes }}", when: citus is defined and citus_ami is not defined}
+    - { role: create_instance, instance: "citus", image: "{{ citus_ami }}", instance_volumes: "{{ db_volumes }}", when: citus is defined and citus_ami is defined}
+
     - { role: create_instance, instance: "mysql", instance_volumes: "{{ db_volumes }}", when: mysql is defined and mysql_ami is not defined}
     - { role: create_instance, instance: "mysql", image: "{{ mysql_ami }}", instance_volumes: "{{ db_volumes }}", when: mysql is defined and mysql_ami is defined}
 
@@ -50,6 +53,14 @@
 
 - include: update_postgresql.yml
   when: postgresql is defined and postgresql_ami is defined
+
+########################################################################
+
+- include: citus.yml
+  when: citus is defined and citus_ami is not defined
+
+#- include: update_postgresql.yml
+  #when: postgresql is defined and postgresql_ami is defined
 
 ########################################################################
 

@@ -3,9 +3,15 @@
   gather_facts: false
   user: ubuntu
   tasks:
+    - name: Fetch script to prepare apt
+      get_url: url=https://install.citusdata.com/community/deb.sh dest=/home/ubuntu/
+
+    - name: Make it executable
+      file: dest=/home/ubuntu/deb.sh mode=a+x
+
     - name: Prepare apt
       become: yes
-      shell: curl https://install.citusdata.com/community/deb.sh | sudo bash
+      shell: /bin/bash /home/ubuntu/deb.sh
 
     - name: Install citus
       become: yes
