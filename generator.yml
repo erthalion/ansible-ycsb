@@ -61,5 +61,5 @@
 
     - name: Copy drivers
       copy:
-        src=bindings
+        src=jdbc-binding
         dest=/home/ubuntu/ycsb/

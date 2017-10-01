@@ -18,7 +18,7 @@
       vars:
         dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
         db: mysql
-        db_parameters: mysqljson -s -cp jdbc-binding/lib/mysql-connector-java-8.0.7-dmr-bin.jar
+        db_parameters: mysqljson -s -cp jdbc-binding/lib/mysql-connector-java-8.0.8-dmr-bin.jar
       with_items: "{{ thread_list }}"
       when: mysql8 is defined
 
