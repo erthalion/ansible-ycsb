@@ -14,3 +14,8 @@
         - { db: mysql, skip: "{{ mysql is not defined }}" }
         - { db: mongo, skip: "{{ mongodb is not defined }}" }
       when: not item.skip | bool
+
+    - name: Copy drivers
+      copy:
+        src=jdbc-binding
+        dest=/home/ubuntu/ycsb/

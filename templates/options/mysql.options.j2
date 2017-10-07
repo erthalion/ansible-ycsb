@@ -1,7 +1,7 @@
 recordcount=1000000
 operationcount=1000000
 db.driver=com.mysql.jdbc.Driver
-db.url=jdbc:mysql://{{ groups['ec2mysql'][0] }}:3306/ycsb
+db.url=jdbc:mysql://{{ groups['ec2mysql'][0] }}:3306/ycsb?useSSL=false&useServerPrepStmts=true
 db.user={{ db_user }}
 db.passwd={{ db_pass }}
 

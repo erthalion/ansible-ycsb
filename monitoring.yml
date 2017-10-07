@@ -47,9 +47,6 @@
         dest=/etc/default/sysstat
       become: true
 
-    - name: Start sar
-      shell: sar -o /home/ubuntu/sar_metrics 1 &
-
   handlers:
     - name: restart sysstat
       become: yes

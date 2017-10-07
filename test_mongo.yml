@@ -1,4 +1,12 @@
 # vim: set ft=ansible:
+- hosts: ec2mongodb
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Start sar for loading
+      shell: sar -o /home/ubuntu/sar_metrics_load 1 &
+      when: skip_load == false
+
 - hosts: ec2generator
   gather_facts: false
   user: ubuntu
@@ -6,7 +14,7 @@
     dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
 
   tasks:
-    - include: test.yml
+    - include: test_load.yml
       vars:
         dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
         db: mongo
@@ -17,6 +25,34 @@
   gather_facts: false
   user: ubuntu
   tasks:
+    - name: Stop sar for loading
+      shell: killall sar
+
+    - name: Start sar for run
+      shell: sar -o /home/ubuntu/sar_metrics_run 1 &
+      when: skip_test == false
+
+- hosts: ec2generator
+  gather_facts: false
+  user: ubuntu
+  vars:
+    dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+
+  tasks:
+    - include: test_run.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
+        db: mongo
+        db_parameters: mongodb
+      with_items: "{{ thread_list }}"
+
+- hosts: ec2mongodb
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Stop sar for loading
+      shell: killall sar
+
     - include: metrics.yml
       vars:
         dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
