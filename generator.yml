@@ -30,7 +30,7 @@
     - name: Clone yscb
       git: repo=https://github.com/erthalion/YCSB
            dest={{yscb_dir}}
-           version=origin/jdbc-native-json-update
+           version=origin/jdbc-native-json-update-with-separate-id
       when: not ycsb_archive.stat.exists
 
     - name: Copy ycsb

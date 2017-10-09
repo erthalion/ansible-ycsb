@@ -5,6 +5,8 @@ db.url=jdbc:mysql://{{ groups['ec2mysql'][0] }}:3306/ycsb?useSSL=false&useServer
 db.user={{ db_user }}
 db.passwd={{ db_pass }}
 
+ami={{ mysql_ami }}
+
 {% if large_document is defined %}
 fieldcount = 100
 fieldlength = 200

@@ -17,6 +17,14 @@ jsonb_path_ops_no_parse = false
 jsonb_path_ops = false
 {% endif %}
 
+{% if separate_id is defined %}
+flat_key = false
+separate_id = true
+field_index = false
+jsonb_path_ops_no_parse = false
+jsonb_path_ops = false
+{% endif %}
+
 {% if jsonb_path_ops is defined %}
 jsonb_path_ops = true
 jsonb_path_ops_no_parse = false

@@ -35,7 +35,7 @@
   user: ubuntu
   tasks:
     - name: Stop sar for loading
-      shell: killall sar -q
+      shell: "killall sar -q || :"
 
     - name: Start sar for run
       shell: sar -o /home/ubuntu/sar_metrics_run 1 &
@@ -69,7 +69,7 @@
   user: ubuntu
   tasks:
     - name: Stop sar for loading
-      shell: killall sar -q
+      shell: "killall sar -q || :"
 
     - include: metrics.yml
       vars:

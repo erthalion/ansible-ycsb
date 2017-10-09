@@ -1,6 +1,8 @@
 {% if sql is not defined %}
     {% if json_type is defined %}
     create table if not exists usertable(data json);
+    {% elif separate_id is defined %}
+    create table if not exists usertable(ycsb_key text primary key, data jsonb);
     {% else %}
     create table if not exists usertable(data jsonb);
     {% endif %}
@@ -16,7 +18,9 @@ create table if not exists usertable (
 	FIELD8 TEXT, FIELD9 TEXT
 );
 
+{% if separate_id is not defined %}
 create index if not exists usertable_ycsb_key_idx on usertable (YCSB_KEY);
+{% endif %}
 
 -- create view usertable_view as
     -- select r.*
