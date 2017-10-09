@@ -1,10 +1,10 @@
 {% if sql is not defined %}
     {% if json_type is defined %}
-    create table if not exists usertable(data json);
+        create table if not exists usertable(data json);
     {% elif separate_id is defined %}
-    create table if not exists usertable(ycsb_key text primary key, data jsonb);
+        create table if not exists usertable(ycsb_key text primary key, data jsonb);
     {% else %}
-    create table if not exists usertable(data jsonb);
+        create table if not exists usertable(data jsonb);
     {% endif %}
 {% endif %}
 
@@ -17,23 +17,20 @@ create table if not exists usertable (
 	FIELD6 TEXT, FIELD7 TEXT,
 	FIELD8 TEXT, FIELD9 TEXT
 );
+{% endif %}
 
 {% if separate_id is not defined %}
 create index if not exists usertable_ycsb_key_idx on usertable (YCSB_KEY);
 {% endif %}
 
--- create view usertable_view as
-    -- select r.*
-    -- from usertable,
-         -- jsonb_populate_record(NULL::ycsb_row, data) r;
-{% endif %}
-
-{% if field_index is defined and nested is defined %}
-create index if not exists usertable_data_idx on usertable ((data->>{% for i in range(9, 0, -1) %}'YCSB_KEY{{i}}'->>{% endfor %}'YCSB_KEY'));
-{% elif field_index is defined %}
-create index if not exists usertable_data_idx on usertable ((data->>'YCSB_KEY'));
-{% else %}
-create index if not exists usertable_data_idx on usertable using gin(data jsonb_path_ops);
+{% if separate_id is not defined %}
+    {% if field_index is defined and nested is defined %}
+        create index if not exists usertable_data_idx on usertable ((data->>{% for i in range(9, 0, -1) %}'YCSB_KEY{{i}}'->>{% endfor %}'YCSB_KEY'));
+    {% elif field_index is defined %}
+        create index if not exists usertable_data_idx on usertable ((data->>'YCSB_KEY'));
+    {% else %}
+        create index if not exists usertable_data_idx on usertable using gin(data jsonb_path_ops);
+    {% endif %}
 {% endif %}
 
 alter table usertable set (autovacuum_vacuum_scale_factor = 0.0);
