@@ -1,0 +1,22 @@
+# vim: set ft=ansible:
+- debug: msg="Test was started with db {{ db }}, db_parameters {{ db_parameters }}"
+
+- name: Cache for {{ db }} queries
+  shell: ./bin/ycsb run {{ db_parameters }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
+        chdir=/home/ubuntu/ycsb/
+  when: skip_cache == false
+
+- name: Run workload for {{ db }} [{{ threads }} threads]
+  shell: ./bin/ycsb run {{ db_parameters }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
+        chdir=/home/ubuntu/ycsb/
+  register: run
+  when: skip_test == false
+
+- name: Save result to file for {{ db }}
+  copy: content={{ run }} dest=/home/ubuntu/run_{{ db }}
+
+- name: Fetch results for {{ db }}
+  fetch: src=run_{{ db }} dest={{ dest_directory }}
+
+- name: Fetch options for {{ db }}
+  fetch: src={{ db }}.options dest={{ dest_directory }}

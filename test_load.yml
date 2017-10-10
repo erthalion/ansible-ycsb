@@ -1,0 +1,17 @@
+# vim: set ft=ansible:
+- debug: msg="Load was started with db {{ db }}, db_parameters {{ db_parameters }}"
+
+- name: Load data to {{ db }} [{{ threads }} threads]
+  shell: ./bin/ycsb load {{ load_db_parameters | default(db_parameters) }} -P workloads/{{ workload }} -P /home/ubuntu/{{ db }}.options -threads {{ threads }}
+        chdir=/home/ubuntu/ycsb/
+  register: load
+  when: skip_load == false
+
+- name: Save load to file for {{ db }}
+  copy: content={{ load }} dest=/home/ubuntu/load_{{ db }}
+
+- name: Fetch results for {{ db }}
+  fetch: src=load_{{ db }} dest={{ dest_directory }}
+
+- name: Fetch options for {{ db }}
+  fetch: src={{ db }}.options dest={{ dest_directory }}
