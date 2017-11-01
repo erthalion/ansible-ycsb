@@ -68,7 +68,7 @@
   gather_facts: false
   user: ubuntu
   tasks:
-    - name: Stop sar for loading
+    - name: Stop sar for run
       shell: "killall sar -q || :"
 
     - include: metrics.yml

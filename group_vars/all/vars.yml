@@ -1,6 +1,7 @@
 db_user: "test"
 db_pass: "123456"
 keypair: "{{ keypair }}"
+#instance_type: "m4.16xlarge"
 instance_type: "m4.large"
 #image: "ami-9abea4fb"
 image: "ami-efd0428f"
