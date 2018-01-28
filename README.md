@@ -30,6 +30,12 @@ List of available options:
 * postgresql_ami - prepared snapshot for PostgreSQL
 * mysql_ami - prepared snapshot for MySQL
 * mongodb_ami - prepared snapshot for MongoDB
+* image - default image to use when creating instances (when not
+  overridden with `generator_ami`, `postgresql_ami`, `mysql_ami`, or
+  `mongodb_ami`).
+* region - AWS region ('us-west-2' by default)
+* availability_zone - AWS Availability Zone ('us-west-2c' by default)
+* placement_group - EC2 Placement Group ('ycsb' by default)
 
 ### YCSB
 
