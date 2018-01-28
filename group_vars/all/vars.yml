@@ -14,3 +14,5 @@ db_volumes:
   volume_size: 64
   volume_type: gp2
   delete_on_termination: true
+recordcount: "{{ recordcount | default('1000000') }}"
+operationcount: "{{ operationcount | default('1000000') }}"

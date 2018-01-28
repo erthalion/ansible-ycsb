@@ -46,6 +46,9 @@ List of available options:
   document
 * field_length - if `custom_size` is True, allows to set a lenght for each
   field in document
+* recordcount - number of records to load into the database initially (0
+  by default)
+* operationcount - number of operations to perform.
 
 ```shell
 # perform benchmarks
