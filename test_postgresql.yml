@@ -14,7 +14,7 @@
     dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
 
   tasks:
-    - include: test_load.yml
+    - include: test.yml
       vars:
         dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
         db: postgresql
@@ -22,7 +22,7 @@
       with_items: "{{ thread_list }}"
       when: sql is not defined
 
-    - include: test_load.yml
+    - include: test.yml
       vars:
         dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
         db: postgresql
