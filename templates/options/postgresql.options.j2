@@ -1,5 +1,5 @@
-recordcount={{ recordcount | default('1000000') }}
-operationcount={{ operationcount | default('1000000') }}
+recordcount={{ recordcount }}
+operationcount={{ operationcount }}
 db.driver=org.postgresql.Driver
 db.url=jdbc:postgresql://{{ groups['ec2postgresql'][0] }}:5432/ycsb
 db.user={{ db_user }}

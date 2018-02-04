@@ -1,5 +1,5 @@
-recordcount=1000000
-operationcount=1000000
+recordcount={{ recordcount }}
+operationcount={{ operationcount }}
 mongodb.auth="true"
 mongodb.url=mongodb://{{ db_user }}:{{ db_pass }}@{{ groups['ec2mongodb'][0] }}:27017/ycsb
 
