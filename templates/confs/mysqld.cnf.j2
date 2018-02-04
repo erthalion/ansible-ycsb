@@ -25,6 +25,8 @@ socket		= /var/run/mysqld/mysqld.sock
 datadir		= /var/lib/mysql
 log-error	= /var/log/mysql/error1.log
 
+default_authentication_plugin = mysql_native_password
+
 innodb_buffer_pool_size = 4GB
 innodb_log_file_size = 1GB
 
@@ -32,3 +34,6 @@ innodb_log_file_size = 1GB
 symbolic-links=0
 
 # performance_schema=0
+
+[client]
+default_auth = mysql_native_password

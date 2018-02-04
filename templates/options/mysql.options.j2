@@ -1,5 +1,5 @@
-recordcount=1000000
-operationcount=1000000
+recordcount={{ recordcount }}
+operationcount={{ operationcount }}
 db.driver=com.mysql.jdbc.Driver
 db.url=jdbc:mysql://{{ groups['ec2mysql'][0] }}:3306/ycsb?useSSL=false&useServerPrepStmts=true
 db.user={{ db_user }}
