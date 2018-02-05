@@ -6,18 +6,31 @@
   connection: local
   gather_facts: false
 
+
   roles:
-    - { role: create_instance, instance: "generator", instance_volumes: [], when: generator_ami is not defined}
-    - { role: create_instance, instance: "generator", image: "{{ generator_ami }}", instance_volumes: [], when: generator_ami is defined}
+    - role: create_instance
+      instance: "generator"
+      image: "{{ generator_ami | default(default_image) }}"
+      instance_volumes: []
+      when: generator is defined
 
-    - { role: create_instance, instance: "postgresql", instance_volumes: "{{ db_volumes }}", when: postgresql is defined and postgresql_ami is not defined}
-    - { role: create_instance, instance: "postgresql", image: "{{ postgresql_ami }}", instance_volumes: "{{ db_volumes }}", when: postgresql is defined and postgresql_ami is defined}
+    - role: create_instance
+      instance: "postgresql"
+      image: "{{ postgresql_ami | default(default_image) }}"
+      instance_volumes: "{{ db_volumes }}"
+      when: postgresql is defined
 
-    - { role: create_instance, instance: "mysql", instance_volumes: "{{ db_volumes }}", when: mysql is defined and mysql_ami is not defined}
-    - { role: create_instance, instance: "mysql", image: "{{ mysql_ami }}", instance_volumes: "{{ db_volumes }}", when: mysql is defined and mysql_ami is defined}
+    - role: create_instance
+      instance: "mysql"
+      image: "{{ mysql_ami | default(default_image) }}"
+      instance_volumes: "{{ db_volumes }}"
+      when: mysql is defined
 
-    - { role: create_instance, instance: "mongodb", instance_volumes: "{{ db_volumes }}", when: mongodb is defined and mongodb_ami is not defined}
-    - { role: create_instance, instance: "mongodb", image: "{{ mongodb_ami }}", instance_volumes: "{{ db_volumes }}", when: mongodb is defined and mongodb_ami is defined}
+    - role: create_instance
+      instance: "mongodb"
+      image: "{{ mongodb_ami | default(default_image) }}"
+      instance_volumes: "{{ db_volumes }}"
+      when: mongodb is defined
 
   tasks:
     - shell: 'date +%Y%m%d%H%M%S%5N'

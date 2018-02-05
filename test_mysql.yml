@@ -14,7 +14,7 @@
     dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
 
   tasks:
-    - include: test.yml
+    - include: test_load.yml
       vars:
         dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
         db: mysql

@@ -14,4 +14,4 @@
   fetch: src=sar_run_{{ db }} dest={{ dest_directory }}
 
 - name: Fetch database-specific metrics
-  fetch: src=/tmp/{{ db }}.json dest={{ dest_directory }}
+  fetch: src=/tmp/{{ db }}.json dest={{ dest_directory }} validate_checksum=no

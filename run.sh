@@ -13,11 +13,11 @@ do
     do
         echo "Run ${i} experiment"
 
-        ansible-playbook benchmark.yml -e "threads=${thread}" "$@" || failed=1
+        ansible-playbook benchmark.yml -e "threads=${thread}" -e "@${1}" || failed=1
 
         # Forced cleanup even if there were errors before
         #
-        ansible-playbook cleanup.yml "$@"
+        ansible-playbook cleanup.yml -e "@${1}"
 
         if [[ ${failed:+x} ]]; then
            exit 1
