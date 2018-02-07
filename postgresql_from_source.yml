@@ -1,0 +1,177 @@
+# vim: set ft=ansible:
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Create fs on nvme
+      become: yes
+      command: mkfs.ext4 -E nodiscard /dev/nvme0n1
+
+    - name: Create mount point
+      become: yes
+      file:
+        path: /mnt/nvme/
+        group: ubuntu
+        owner: ubuntu
+
+    - name: Mount nvme
+      become: yes
+      mount:
+          path: /mnt/nvme
+          src: /dev/nvme0n1
+          opts: discard
+          state: present
+
+    - name: Install dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - build-essential
+        - libreadline-dev
+        - zlib1g-dev
+        - flex
+        - bison
+        - libxml2-dev
+        - libxslt-dev
+        - libssl-dev
+        - git
+
+    - name: Add postgres group
+      become: yes
+      group:
+        name: postgres
+        gid: 999
+        state: present
+
+    - name: Add postgres user
+      become: yes
+      user:
+        name: postgres
+        uid: 999
+        group: postgres
+
+    - name: Clone PG source
+      become: yes
+      become_user: postgres
+      git:
+        repo: https://github.com/postgres/postgres.git
+        dest: /home/postgres/postgres
+
+    - name: Configure PG
+      become: yes
+      become_user: postgres
+      shell: ./configure --prefix=/mnt/nvme/build/postgres
+            chdir=/home/postgres/postgres
+
+    - name: Build PG
+      become: yes
+      become_user: postgres
+      shell: make chdir=/home/postgres/postgres
+
+    - name: Install PG
+      become: yes
+      become_user: postgres
+      shell: make install chdir=/home/postgres/postgres
+
+    - name: Create data directory
+      become: yes
+      become_user: postgres
+      file: path=/mnt/nvme/build/postgres/data state=directory owner=postgres
+
+    - name: Init PG
+      become: yes
+      become_user: postgres
+      shell: ./bin/initdb -D data chdir=/home/postgres/build/
+
+    - name: Start PG
+      shell: ./bin/pg_ctl -D data start chdir=/home/postgres/build/
+      become: yes
+      become_user: postgres
+
+    - name: Create socket directory
+      become: yes
+      file: path=/var/run/postgresql state=directory owner=postgres
+
+    - name: Install pg_view dependencies
+      become: yes
+      apt: name={{item}}
+           state=installed
+      with_items:
+        - python-psycopg2
+        - python3-pip
+
+    - name: Update setuptools (for pg_view)
+      become: yes
+      pip: name=setuptools
+           executable=pip3
+           state=latest
+           extra_args='--upgrade'
+
+    - name: Install pg_view
+      become: yes
+      pip: name=pg_view
+           executable=pip3
+
+    - name: Template Postgresql configuration file
+      become: yes
+      become_user: postgres
+      action: template
+        src=templates/confs/{{ item.source }}.conf.j2
+        dest=/home/postgres/build/data/{{ item.target }}.conf
+      with_items:
+        - { source: "pg_hba", target: "pg_hba"}
+        - { source: "postgresql_from_source", target: "postgresql" }
+
+    - name: restart postgresql
+      become: yes
+      become_user: postgres
+      shell: ./bin/pg_ctl -D data restart chdir=/home/postgres/build/
+      when: postgres_from_source is defined
+
+    - meta: flush_handlers
+
+    - name: Create user
+      postgresql_user:
+        name={{ db_user }}
+        password={{ db_pass }}
+        role_attr_flags=CREATEDB,SUPERUSER
+        state=present
+        encrypted=yes
+      become: yes
+      become_user: postgres
+      become_method: sudo
+
+    - name: Create user database
+      postgresql_db:
+        name={{ db_user }}
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+
+    - name: Create test database
+      postgresql_db:
+        name=test
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+
+    - name: Copy init sql
+      template:
+        src=templates/init/pg_init.sql
+        dest=/home/postgres/pg_init.sql
+      become: yes
+      become_user: postgres
+      when: postgres_from_source is defined
+
+    - name: Create usertable with jsonb
+      shell: psql -h /var/run/postgresql ycsb -U {{ db_user }} < /home/postgres/pg_init.sql
+      become: yes
+      become_user: postgres
+      environment:
+        PATH: $PATH:/home/postgres/build/bin
+      when: postgres_from_source is defined
+
+    - name: Start pg_view
+      command: pg_view -o json > /home/ubuntu/postgresql.json &
+
+  environment:
+    PGPASSWORD: "{{ db_pass }}"

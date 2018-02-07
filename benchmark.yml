@@ -66,6 +66,14 @@
 
 ########################################################################
 
+- include: postgresql_from_source.yml
+  when: postgresql_from_source is defined and postgresql_ami is not defined
+
+- include: update_postgresql_from_source.yml
+  when: postgresql_from_source is defined and postgresql_ami is defined
+
+########################################################################
+
 - include: mysql.yml
   when: mysql is defined and mysql_ami is not defined
 
@@ -100,6 +108,8 @@
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
     skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
 
+########################################################################
+
 - include: test_mysql.yml
   when: mysql is defined and threads is defined
   vars:
@@ -118,6 +128,8 @@
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
     skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
 
+########################################################################
+
 - include: test_mongo.yml
   when: mongodb is defined and threads is defined
   vars:
@@ -135,6 +147,28 @@
     skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
     skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
     skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
+
+########################################################################
+
+- include: test_postgresql_nvme.yml
+  when: postgresql_nmve is defined and threads is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
+    thread_list: [ "{{ threads }}" ]
+    skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
+    skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
+
+- include: test_postgresql_nvme.yml
+  when: postgresql_nvme is defined and all_threads is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
+    thread_list: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
+    skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
+
+########################################################################
 
 - include: cleanup.yml
   when: prevent_cleanup is undefined or prevent_cleanup|bool == false

@@ -1,0 +1,77 @@
+# vim: set ft=ansible:
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Start sar for loading
+      shell: sar -o /home/ubuntu/sar_metrics_load 1 &
+      when: skip_load == false
+
+- hosts: ec2generator
+  gather_facts: false
+  user: ubuntu
+  vars:
+    dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+
+  tasks:
+    - include: test_load.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
+        db: postgresql
+        db_parameters: pgjsonb -s -cp jdbc-binding/lib/postgresql-42.1.4.jar
+      with_items: "{{ thread_list }}"
+      when: sql is not defined
+
+    - include: test_load.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
+        db: postgresql
+        db_parameters: jdbc -s -cp jdbc-binding/lib/postgresql-42.1.4.jar
+      with_items: "{{ thread_list }}"
+      when: sql is defined
+
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Stop sar for loading
+      shell: "killall sar -q || :"
+
+    - name: Start sar for run
+      shell: sar -o /home/ubuntu/sar_metrics_run 1 &
+      when: skip_test == false
+
+- hosts: ec2generator
+  gather_facts: false
+  user: ubuntu
+  vars:
+    dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+
+  tasks:
+    - include: test_run.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
+        db: postgresql
+        db_parameters: pgjsonb -s -cp jdbc-binding/lib/postgresql-42.1.4.jar
+      with_items: "{{ thread_list }}"
+      when: sql is not defined
+
+    - include: test_run.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ item }}_{{ date }}"
+        db: postgresql
+        db_parameters: jdbc -s -cp jdbc-binding/lib/postgresql-42.1.4.jar
+      with_items: "{{ thread_list }}"
+      when: sql is defined
+
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Stop sar for loading
+      shell: "killall sar -q || :"
+
+    - include: metrics.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+        db: postgresql
