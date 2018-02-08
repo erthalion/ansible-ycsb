@@ -3,24 +3,8 @@
   gather_facts: false
   user: ubuntu
   tasks:
-    - name: Create fs on nvme
-      become: yes
-      command: mkfs.ext4 -E nodiscard /dev/nvme0n1
-
-    - name: Create mount point
-      become: yes
-      file:
-        path: /mnt/nvme/
-        group: ubuntu
-        owner: ubuntu
-
-    - name: Mount nvme
-      become: yes
-      mount:
-          path: /mnt/nvme
-          src: /dev/nvme0n1
-          opts: discard
-          state: present
+    - include: nvme.yml
+      when: nvme is defined
 
     - name: Install dependencies
       become: yes
@@ -61,7 +45,7 @@
     - name: Configure PG
       become: yes
       become_user: postgres
-      shell: ./configure --prefix=/mnt/nvme/build/postgres
+      shell: ./configure --prefix=/home/ubuntu/build/postgres
             chdir=/home/postgres/postgres
 
     - name: Build PG
@@ -77,12 +61,12 @@
     - name: Create data directory
       become: yes
       become_user: postgres
-      file: path=/mnt/nvme/build/postgres/data state=directory owner=postgres
+      file: path={{ pg_data_dir }} state=directory owner=postgres
 
     - name: Init PG
       become: yes
       become_user: postgres
-      shell: ./bin/initdb -D data chdir=/home/postgres/build/
+      shell: ./bin/initdb -D {{ pg_data_dir }} chdir=/home/postgres/build/
 
     - name: Start PG
       shell: ./bin/pg_ctl -D data start chdir=/home/postgres/build/

@@ -18,7 +18,7 @@
       instance: "postgresql"
       image: "{{ postgresql_ami | default(default_image) }}"
       instance_volumes: "{{ db_volumes }}"
-      when: postgresql is defined
+      when: postgresql is defined or postgresql_from_source is defined
 
     - role: create_instance
       instance: "mysql"

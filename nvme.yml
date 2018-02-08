@@ -1,0 +1,21 @@
+# vim: set ft=ansible:
+- name: Create fs on nvme
+  become: yes
+  command: mkfs.ext4 -E nodiscard /dev/nvme0n1
+
+- name: Create mount point
+  become: yes
+  file:
+    path: /mnt/nvme/
+    group: ubuntu
+    owner: ubuntu
+    state: directory
+    fstype: ext4
+
+- name: Mount nvme
+  become: yes
+  mount:
+      path: /mnt/nvme
+      src: /dev/nvme0n1
+      opts: discard
+      state: present
