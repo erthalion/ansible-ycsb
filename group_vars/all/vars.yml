@@ -1,6 +1,5 @@
 db_user: "test"
 db_pass: "123456"
-keypair: "{{ _keypair }}"
 instance_type: "i3.large"
 default_image: "{{ _image | default('ami-efd0428f')}}"
 vpc_subnet_id: "{{ subnet_id }}"

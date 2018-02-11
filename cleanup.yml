@@ -6,7 +6,6 @@
     #- name: Delete instance "{{ item }}"
     - name: Delete instance
       ec2:
-        image: "{{ image }}"
         instance_type: "{{ instance_type }}"
         keypair: "{{ keypair }}"
         instance_tags:

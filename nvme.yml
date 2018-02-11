@@ -10,7 +10,6 @@
     group: ubuntu
     owner: ubuntu
     state: directory
-    fstype: ext4
 
 - name: Mount nvme
   become: yes
@@ -19,3 +18,4 @@
       src: /dev/nvme0n1
       opts: discard
       state: present
+      fstype: ext4
