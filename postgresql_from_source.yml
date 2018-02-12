@@ -3,9 +3,6 @@
   gather_facts: false
   user: ubuntu
   tasks:
-    - include: nvme.yml
-      when: nvme is defined
-
     - name: Install dependencies
       become: yes
       apt: name={{item}}
@@ -35,6 +32,9 @@
         uid: 999
         group: postgres
 
+    - include: nvme.yml
+      when: nvme is defined
+
     - name: Clone PG source
       become: yes
       become_user: postgres
@@ -45,7 +45,7 @@
     - name: Configure PG
       become: yes
       become_user: postgres
-      shell: ./configure --prefix=/home/ubuntu/build/postgres
+      shell: ./configure --prefix={{ pg_dir }}
             chdir=/home/postgres/postgres
 
     - name: Build PG
@@ -61,15 +61,15 @@
     - name: Create data directory
       become: yes
       become_user: postgres
-      file: path={{ pg_data_dir }} state=directory owner=postgres
+      file: path={{ pg_dir }}/data state=directory owner=postgres
 
     - name: Init PG
       become: yes
       become_user: postgres
-      shell: ./bin/initdb -D {{ pg_data_dir }} chdir=/home/postgres/build/
+      shell: ./bin/initdb -D {{ pg_dir }}/data chdir={{ pg_dir }}
 
     - name: Start PG
-      shell: ./bin/pg_ctl -D data start chdir=/home/postgres/build/
+      shell: ./bin/pg_ctl -D data start chdir={{ pg_dir }}
       become: yes
       become_user: postgres
 
@@ -110,7 +110,7 @@
     - name: restart postgresql
       become: yes
       become_user: postgres
-      shell: ./bin/pg_ctl -D data restart chdir=/home/postgres/build/
+      shell: ./bin/pg_ctl -D data restart chdir={{ pg_dir }}
       when: postgres_from_source is defined
 
     - meta: flush_handlers
@@ -151,7 +151,7 @@
       become: yes
       become_user: postgres
       environment:
-        PATH: $PATH:/home/postgres/build/bin
+        PATH: $PATH:{{ pg_dir }}/bin
       when: postgres_from_source is defined
 
     - name: Start pg_view

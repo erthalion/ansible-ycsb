@@ -3,16 +3,16 @@
   connection: local
   gather_facts: false
   tasks:
-    #- name: Delete instance "{{ item }}"
     - name: Delete instance
       ec2:
         instance_type: "{{ instance_type }}"
+        image: "{{ default_image }}"
         keypair: "{{ keypair }}"
         instance_tags:
           Name: "{{ item }}"
         region: "{{ region }}"
         group: "{{ item }}"
-        vpc_subnet_id: "{{ subnet_id }}"
+        vpc_subnet_id: "{{ vpc_subnet_id }}"
         spot_price: "{{ price }}"
         zone: "{{ availability_zone }}"
         #wait: true

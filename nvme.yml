@@ -7,8 +7,8 @@
   become: yes
   file:
     path: /mnt/nvme/
-    group: ubuntu
-    owner: ubuntu
+    group: postgres
+    owner: postgres
     state: directory
 
 - name: Mount nvme
