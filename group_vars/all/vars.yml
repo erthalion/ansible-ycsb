@@ -1,7 +1,7 @@
 db_user: "test"
 db_pass: "123456"
 instance_type: "i3.large"
-keypair: "erthalion_oregon"
+keypair: "{{ KEYPAIR | default('erthalion_oregon') }}"
 default_image: "ami-efd0428f"
 vpc_subnet_id: "{{ subnet_id | default('subnet-83cea8da') }}"
 region: "{{ _region | default('us-west-2') }}"

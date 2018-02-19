@@ -97,5 +97,7 @@ host    all             all             ::1/128                 md5
 #local   replication     postgres                                peer
 #host    replication     postgres        127.0.0.1/32            md5
 #host    replication     postgres        ::1/128                 md5
-host    all         {{ db_user }}        {{groups['ec2generator'][0]}}/24    trust
+{% if 'ec2generator' in groups %}
+host    all         {{ db_user }}        {{ groups['ec2generator'][0] }}/24    trust
+{% endif %}
 local   all         {{ db_user }}                                md5
