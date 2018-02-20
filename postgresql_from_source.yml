@@ -33,7 +33,7 @@
         group: postgres
 
     - include: nvme.yml
-      when: nvme is defined
+      when: postgresql_nvme is defined
 
     - name: Clone PG source
       become: yes
@@ -97,15 +97,15 @@
       pip: name=pg_view
            executable=pip3
 
-    - name: Template Postgresql configuration file
-      become: yes
-      become_user: postgres
-      action: template
-        src=templates/confs/{{ item.source }}.conf.j2
-        dest={{ pg_dir }}/data/{{ item.target }}.conf
-      with_items:
-        - { source: "pg_hba", target: "pg_hba"}
-        - { source: "postgresql_from_source", target: "postgresql" }
+    #- name: Template Postgresql configuration file
+      #become: yes
+      #become_user: postgres
+      #action: template
+        #src=templates/confs/{{ item.source }}.conf.j2
+        #dest={{ pg_dir }}/data/{{ item.target }}.conf
+      #with_items:
+        #- { source: "pg_hba", target: "pg_hba"}
+        #- { source: "postgresql_from_source", target: "postgresql" }
 
     - name: restart postgresql
       become: yes
@@ -119,6 +119,7 @@
         role_attr_flags=CREATEDB,SUPERUSER
         state=present
         encrypted=yes
+        login_unix_socket=/tmp/
       become: yes
       become_user: postgres
       become_method: sudo
@@ -128,12 +129,14 @@
         name={{ db_user }}
         login_user={{ db_user }}
         login_password={{ db_pass }}
+        login_unix_socket=/tmp/
 
     - name: Create test database
       postgresql_db:
         name=test
         login_user={{ db_user }}
         login_password={{ db_pass }}
+        login_unix_socket=/tmp/
 
     - name: Copy init sql
       template:

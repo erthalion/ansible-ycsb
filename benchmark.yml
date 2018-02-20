@@ -151,7 +151,7 @@
 ########################################################################
 
 - include: test_postgresql_nvme.yml
-  when: postgresql_nmve is defined and threads is defined
+  when: postgresql_nvme is defined and threads is defined
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [ "{{ threads }}" ]
