@@ -39,8 +39,9 @@
       become: yes
       become_user: postgres
       git:
-        repo: https://github.com/postgres/postgres.git
+        repo: "{{ pg_repo | default('https://github.com/postgres/postgres.git') }}"
         dest: /home/postgres/postgres
+        version: "{{ pg_branch | default('master') }}"
 
     - name: Configure PG
       become: yes
