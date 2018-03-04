@@ -1,0 +1,35 @@
+# vim: set ft=ansible:
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Start sar for run
+      shell: sar -o /home/ubuntu/sar_metrics_run 1 &
+      when: skip_test == false
+
+    - name: Test
+      shell: >
+        pgbench
+        -U {{ db_user }}
+        -T {{ pgbench_time }}
+        -c {{ pgbench_clients }}
+        -j {{ pgbench_clients }}
+        -f /home/ubuntu/{{ item }}.sql
+        -r > ./run_postgresql_{{ item }}
+        chdir={{ pg_dir | default('/home/ubuntu/') }}
+      with_items: "{{ pgbench_script }}"
+
+    - name: Stop sar for test
+      shell: "killall sar -q || :"
+
+    - name: Fetch results for PostgreSQL
+      fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql_{{ item }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+      with_items: "{{ pgbench_script }}"
+
+    - include: metrics.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+        db: postgresql
+
+  environment:
+    PGPASSWORD: "{{ db_pass }}"

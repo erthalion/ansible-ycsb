@@ -1,11 +1,19 @@
 # vim: set ft=ansible:
+- stat:
+    path: /home/ubuntu/sar_metrics_load
+  register: sar_load
+
+- stat:
+    path: /home/ubuntu/sar_metrics_run
+  register: sar_run
+
 - name: Collect sar load metrics
   shell: sar -A -f /home/ubuntu/sar_metrics_load > /home/ubuntu/sar_load_{{ db }}
-  register: sar
+  when: sar_load.stat.exists
 
 - name: Collect sar run metrics
   shell: sar -A -f /home/ubuntu/sar_metrics_run > /home/ubuntu/sar_run_{{ db }}
-  register: sar
+  when: sar_run.stat.exists
 
 - name: Fetch load metrics
   fetch: src=sar_load_{{ db }} dest={{ dest_directory }}

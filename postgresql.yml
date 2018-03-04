@@ -4,10 +4,6 @@
   user: ubuntu
   tasks:
     - include: install_postgres_deb.yml
-      when: postgres_from_deb is defined
-
-    - include: install_postgres_source.yml
-      when: postgres_from_source is defined
 
     - name: Install pg_view dependencies
       become: yes
@@ -39,24 +35,6 @@
         - postgresql
       notify:
         - restart postgresql
-      when: postgres_from_deb is defined
-
-    - name: Template Postgresql configuration file
-      become: yes
-      become_user: postgres
-      action: template
-        src=templates/confs/{{ item.source }}.conf.j2
-        dest=/home/postgres/build/data/{{ item.target }}.conf
-      with_items:
-        - { source: "pg_hba", target: "pg_hba"}
-        - { source: "postgresql_from_source", target: "postgresql" }
-      when: postgres_from_source is defined
-
-    - name: restart postgresql
-      become: yes
-      become_user: postgres
-      shell: ./bin/pg_ctl -D data restart chdir=/home/postgres/build/
-      when: postgres_from_source is defined
 
     - meta: flush_handlers
 
@@ -77,37 +55,27 @@
         login_user={{ db_user }}
         login_password={{ db_pass }}
 
-    - name: Create YCSB database
+    - name: Create test database
       postgresql_db:
-        name=ycsb
+        name={{ db_name }}
         login_user={{ db_user }}
         login_password={{ db_pass }}
 
     - name: Copy init sql
       template:
-        src=templates/init/pg_init.sql
-        dest=/home/ubuntu/pg_init.sql
-      when: postgres_from_deb is defined
+        src=templates/init/{{ pg_init }}.sql
+        dest=/home/ubuntu/{{ pg_init }}.sql
 
-    - name: Create usertable with jsonb
-      shell: psql ycsb -U {{ db_user }} < /home/ubuntu/pg_init.sql
-      when: postgres_from_deb is defined
-
-    - name: Copy init sql
+    - name: Copy pgbench sql
       template:
-        src=templates/init/pg_init.sql
-        dest=/home/postgres/pg_init.sql
-      become: yes
-      become_user: postgres
-      when: postgres_from_source is defined
+        src=templates/init/{{ item }}.sql
+        dest=/home/ubuntu/{{ item }}.sql
+      with_items: "{{ pgbench_script }}"
+      when: pgbench_script is defined
 
-    - name: Create usertable with jsonb
-      shell: psql -h /var/run/postgresql ycsb -U {{ db_user }} < /home/postgres/pg_init.sql
-      become: yes
-      become_user: postgres
-      environment:
-        PATH: $PATH:/home/postgres/build/bin
-      when: postgres_from_source is defined
+    - name: Run init script
+      shell: psql {{ db_name }} -U {{ db_user }} < /home/ubuntu/{{ pg_init }}.sql
+      when: pg_init is defined
 
     - name: Start pg_view
       command: pg_view -o json > /home/ubuntu/postgresql.json &
@@ -121,4 +89,3 @@
       service:
         name=postgresql
         state=restarted
-      when: postgres_from_deb is defined

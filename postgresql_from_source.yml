@@ -134,20 +134,21 @@
 
     - name: Create test database
       postgresql_db:
-        name=test
+        name={{ db_name }}
         login_user={{ db_user }}
         login_password={{ db_pass }}
         login_unix_socket=/tmp/
 
     - name: Copy init sql
       template:
-        src=templates/init/pg_init.sql
-        dest=/home/postgres/pg_init.sql
+        src=templates/init/{{ pg_init }}.sql
+        dest=/home/postgres/{{ pg_init }}.sql
       become: yes
       become_user: postgres
+      when: pg_init is defined
 
-    - name: Create usertable with jsonb
-      shell: psql -h /var/run/postgresql ycsb -U {{ db_user }} < /home/postgres/{{ pg_init }}.sql
+    - name: Run init script
+      shell: psql -h /var/run/postgresql {{ db_name }} -U {{ db_user }} < /home/postgres/{{ pg_init }}.sql
       become: yes
       become_user: postgres
       environment:

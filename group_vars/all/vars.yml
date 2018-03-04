@@ -1,6 +1,7 @@
 db_user: "test"
 db_pass: "123456"
-instance_type: "i3.large"
+db_name: "{{ DB_NAME | default('test') }}"
+instance_type: "{{ INSTANCE_TYPE | default('i3.large') }}"
 keypair: "{{ KEYPAIR | default('erthalion_oregon') }}"
 default_image: "ami-efd0428f"
 vpc_subnet_id: "{{ subnet_id | default('subnet-83cea8da') }}"

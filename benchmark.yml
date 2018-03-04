@@ -18,7 +18,7 @@
       instance: "postgresql"
       image: "{{ postgresql_ami | default(default_image) }}"
       instance_volumes: "{{ db_volumes }}"
-      when: postgresql is defined or postgresql_from_source is defined
+      when: postgresql_instance is defined or postgresql_from_source is defined
 
     - role: create_instance
       instance: "mysql"
@@ -59,10 +59,10 @@
 ########################################################################
 
 - include: postgresql.yml
-  when: postgresql is defined and postgresql_ami is not defined
+  when: postgresql_instance is defined and postgresql_ami is not defined
 
 - include: update_postgresql.yml
-  when: postgresql is defined and postgresql_ami is defined
+  when: postgresql_instance is defined and postgresql_ami is defined
 
 ########################################################################
 
@@ -161,6 +161,26 @@
 
 - include: test_postgresql_nvme.yml
   when: postgresql_nvme is defined and all_threads is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
+    thread_list: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
+    skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
+
+########################################################################
+
+- include: test_with_pgbench.yml
+  when: pgbench is defined and threads is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
+    thread_list: [ "{{ threads }}" ]
+    skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
+    skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
+
+- include: test_with_pgbench.yml
+  when: pgbench is defined and all_threads is defined
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
