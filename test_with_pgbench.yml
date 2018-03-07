@@ -3,20 +3,29 @@
   gather_facts: false
   user: ubuntu
   tasks:
+    - name: Disable hyperthreading
+      become: yes
+      shell: >
+        echo 0 > /sys/devices/system/cpu/cpu1/online
+
     - name: Start sar for run
       shell: sar -o /home/ubuntu/sar_metrics_run 1 &
       when: skip_test == false
 
     - name: Test
       shell: >
-        pgbench
+        pgbench -r
         -U {{ db_user }}
         -T {{ pgbench_time }}
         -c {{ pgbench_clients }}
         -j {{ pgbench_clients }}
         -f /home/ubuntu/{{ item }}.sql
-        -r > ./run_postgresql_{{ item }}
         chdir={{ pg_dir | default('/home/ubuntu/') }}
+      with_items: "{{ pgbench_script }}"
+      register: run
+
+    - name: Save result to file
+      copy: content={{ run }} dest=/home/ubuntu/run_postgresql_{{ item }}
       with_items: "{{ pgbench_script }}"
 
     - name: Stop sar for test

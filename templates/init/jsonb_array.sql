@@ -1,4 +1,4 @@
-\set id random(1, 1000000)
+\set id random(1, {{ recordcount }})
 
 select data->0 from jsonb_test where id = :id;
 select data->38 from jsonb_test where id = :id;

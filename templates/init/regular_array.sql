@@ -1,4 +1,4 @@
-\set id random(1, 1000000)
+\set id random(1, {{ recordcount }})
 
 select data[1] from array_test where id = :id;
 select data[38] from array_test where id = :id;

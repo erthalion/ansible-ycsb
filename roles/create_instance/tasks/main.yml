@@ -14,6 +14,7 @@
     wait: true
     volumes: "{{ instance_volumes }}"
     monitoring: no
+    tenancy: dedicated
   register: ec2_info
 
 - name: Add instance {{ instance }} to ec2hosts group
