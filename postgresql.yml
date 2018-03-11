@@ -29,12 +29,19 @@
       become: yes
       action: template
         src=templates/confs/{{ item }}.conf.j2
-        dest=/etc/postgresql/9.6/main/{{ item }}.conf
+        dest=/etc/postgresql/10/main/{{ item }}.conf
       with_items:
         - pg_hba
-        - postgresql
+        - postgresql_extend
       notify:
         - restart postgresql
+
+    - name: Include config
+      become: yes
+      lineinfile:
+        path: /etc/postgresql/10/main/postgresql.conf
+        state: present
+        line: "include 'postgresql_extend.conf'"
 
     - meta: flush_handlers
 
