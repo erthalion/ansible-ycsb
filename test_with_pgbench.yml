@@ -35,6 +35,12 @@
       fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql_{{ item }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
       with_items: "{{ pgbench_script }}"
 
+    - name: Dump all vars
+      action: template src=templates/dumpall.j2 dest=/tmp/vars
+
+    - name: Fetch vars
+      fetch: src=/tmp/vars dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+
     - include: metrics.yml
       vars:
         dest_directory: "./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
