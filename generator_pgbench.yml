@@ -1,0 +1,6 @@
+# vim: set ft=ansible:
+- hosts: ec2generator
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - include: install_postgres_deb.yml

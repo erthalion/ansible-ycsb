@@ -12,7 +12,7 @@
       instance: "generator"
       image: "{{ generator_ami | default(default_image) }}"
       instance_volumes: []
-      when: generator is defined
+      when: generator is defined or generator_pgbench is defined
 
     - role: create_instance
       instance: "postgresql"
@@ -49,12 +49,17 @@
 - include: generator.yml
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
-  when: generator_ami is not defined
+  when: generator_instance is defined and generator_ami is not defined
 
 - include: update_generator.yml
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
-  when: generator_ami is defined
+  when: generator_instance is defined and generator_ami is defined
+
+########################################################################
+
+- include: generator_pgbench.yml
+  when: generator_pgbench is defined
 
 ########################################################################
 
@@ -181,6 +186,26 @@
 
 - include: test_with_pgbench.yml
   when: pgbench is defined and all_threads is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
+    thread_list: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
+    skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
+
+########################################################################
+
+- include: test_with_remote_pgbench.yaml
+  when: pgbench_remote is defined and threads is defined
+  vars:
+    date: "{{ hostvars['localhost']['timestamp'].stdout }}"
+    thread_list: [ "{{ threads }}" ]
+    skip_load: "{{ prevent_load is defined and prevent_load|bool == true }}"
+    skip_test: "{{ prevent_test is defined and prevent_test|bool == true }}"
+    skip_cache: "{{ prevent_cache is defined and prevent_cache|bool == true }}"
+
+- include: test_with_remote_pgbench.yaml
+  when: pgbench_remote is defined and all_threads is defined
   vars:
     date: "{{ hostvars['localhost']['timestamp'].stdout }}"
     thread_list: [1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]

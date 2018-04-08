@@ -1,0 +1,70 @@
+# vim: set ft=ansible:
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Disable hyperthreading
+      become: yes
+      shell: >
+        echo 0 > /sys/devices/system/cpu/cpu1/online
+      when: disable_hyperthreading is defined
+
+    - name: Start sar for run
+      shell: sar -o /home/ubuntu/sar_metrics_run 1 &
+      when: skip_test == false
+
+- hosts: ec2generator
+  gather_facts: false
+  user: ubuntu
+  vars:
+    dest_directory: "./{{ workload }}_threads_{{ threads }}_{{ date }}"
+
+  tasks:
+    - name: Copy pgbench sql
+      template:
+        src=templates/init/{{ item }}.sql
+        dest=/home/ubuntu/{{ item }}.sql
+      with_items: "{{ pgbench_script }}"
+      when: pgbench_script is defined
+
+    - name: Test
+      shell: >
+        pgbench -r
+        -h {{ groups['ec2postgresql'][0] }}
+        -U {{ db_user }}
+        -T {{ pgbench_time }}
+        -c {{ pgbench_clients }}
+        -j {{ pgbench_clients }}
+        -f /home/ubuntu/{{ item }}.sql
+        chdir={{ pg_dir | default('/home/ubuntu/') }}
+      with_items: "{{ pgbench_script }}"
+      register: run
+
+    - name: Save result to file
+      copy: content={{ run }} dest=/home/ubuntu/run_postgresql_{{ item }}
+      with_items: "{{ pgbench_script }}"
+
+    - name: Fetch results for PostgreSQL
+      fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql_{{ item }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+      with_items: "{{ pgbench_script }}"
+
+    - name: Dump all vars
+      action: template src=templates/dumpall.j2 dest=/tmp/vars
+
+    - name: Fetch vars
+      fetch: src=/tmp/vars dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+
+- hosts: ec2postgresql
+  gather_facts: false
+  user: ubuntu
+  tasks:
+    - name: Stop sar for test
+      shell: "killall sar -q || :"
+
+    - include: metrics.yml
+      vars:
+        dest_directory: "./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+        db: postgresql
+
+  environment:
+    PGPASSWORD: "{{ db_pass }}"
