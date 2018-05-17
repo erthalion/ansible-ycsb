@@ -98,15 +98,15 @@
       pip: name=pg_view
            executable=pip3
 
-    #- name: Template Postgresql configuration file
-      #become: yes
-      #become_user: postgres
-      #action: template
-        #src=templates/confs/{{ item.source }}.conf.j2
-        #dest={{ pg_dir }}/data/{{ item.target }}.conf
-      #with_items:
+    - name: Template Postgresql configuration file
+      become: yes
+      become_user: postgres
+      action: template
+        src=templates/confs/{{ item.source }}.conf.j2
+        dest={{ pg_dir }}/data/{{ item.target }}.conf
+      with_items:
         #- { source: "pg_hba", target: "pg_hba"}
-        #- { source: "postgresql_from_source", target: "postgresql" }
+        - { source: "postgresql_from_source", target: "postgresql" }
 
     - name: restart postgresql
       become: yes
@@ -120,7 +120,7 @@
         role_attr_flags=CREATEDB,SUPERUSER
         state=present
         encrypted=yes
-        login_unix_socket=/tmp/
+        login_unix_socket=/var/run/postgresql
       become: yes
       become_user: postgres
       become_method: sudo
@@ -130,14 +130,14 @@
         name={{ db_user }}
         login_user={{ db_user }}
         login_password={{ db_pass }}
-        login_unix_socket=/tmp/
+        login_unix_socket=/var/run/postgresql
 
     - name: Create test database
       postgresql_db:
         name={{ db_name }}
         login_user={{ db_user }}
         login_password={{ db_pass }}
-        login_unix_socket=/tmp/
+        login_unix_socket=/var/run/postgresql
 
     - name: Copy init sql
       template:
@@ -146,6 +146,13 @@
       become: yes
       become_user: postgres
       when: pg_init is defined
+
+    - name: Copy pgbench sql
+      template:
+        src=templates/init/{{ item }}.sql
+        dest=/home/ubuntu/{{ item }}.sql
+      with_items: "{{ pgbench_script }}"
+      when: pgbench_script is defined
 
     - name: Run init script
       shell: psql -h /var/run/postgresql {{ db_name }} -U {{ db_user }} < /home/postgres/{{ pg_init }}.sql

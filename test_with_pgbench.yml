@@ -20,6 +20,7 @@
         -c {{ pgbench_clients }}
         -j {{ pgbench_clients }}
         -f /home/ubuntu/{{ item }}.sql
+        -h /var/run/postgresql
         chdir={{ pg_dir | default('/home/ubuntu/') }}
       with_items: "{{ pgbench_script }}"
       register: run
@@ -48,3 +49,4 @@
 
   environment:
     PGPASSWORD: "{{ db_pass }}"
+    PATH: $PATH:{{ pg_dir }}/bin
