@@ -33,7 +33,7 @@
       shell: "killall sar -q || :"
 
     - name: Fetch results for PostgreSQL
-      fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql_{{ item }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+      fetch: src=/home/ubuntu/run_postgresql_{{ item }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
       with_items: "{{ pgbench_script }}"
 
     - name: Dump all vars

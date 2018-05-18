@@ -35,7 +35,7 @@
     - include: nvme.yml
       when: postgresql_nvme is defined
 
-    - name: Clone PG source
+    - name: Clone PG source from {{ pg_repo | default('https://github.com/postgres/postgres.git') }}/{{ pg_branch | default('master') }}
       become: yes
       become_user: postgres
       git:
