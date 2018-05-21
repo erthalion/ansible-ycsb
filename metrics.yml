@@ -25,9 +25,19 @@
   #fetch: src=/tmp/{{ db }}.json dest={{ dest_directory }} validate_checksum=no
 
 - name: Get db stat
-  shell: psql -tqAc < /home/ubuntu/pg_stat.sql
+  shell: psql -tqA < /home/ubuntu/pg_stat.sql -h /var/run/postgresql > /tmp/pg_stat
   become: yes
   become_user: postgres
   environment:
     PGPASSWORD: "{{ db_pass }}"
     PATH: $PATH:{{ pg_dir }}/bin
+
+- name: Fetch db stat
+  fetch: src=/tmp/pg_stat dest={{ dest_directory }} validate_checksum=no
+
+- name: Get disk stat
+  shell: /bin/df -aTh > /tmp/disk_stat
+  become: yes
+
+- name: Fetch disk metrics
+  fetch: src=/tmp/disk_stat dest={{ dest_directory }}
