@@ -154,6 +154,12 @@
       with_items: "{{ pgbench_script }}"
       when: pgbench_script is defined
 
+    - name: Cut the data
+      shell: /usr/bin/head -n 50000000 /home/ubuntu/data > /home/postgres/data
+      become: yes
+      become_user: postgres
+      when: pg_init is defined
+
     - name: Run init script
       shell: psql -h /var/run/postgresql {{ db_name }} -U {{ db_user }} < /home/postgres/{{ pg_init }}.sql
       become: yes
@@ -161,6 +167,15 @@
       environment:
         PATH: $PATH:{{ pg_dir }}/bin
       when: pg_init is defined
+
+    #- name: Run init script
+      #command: /usr/bin/python3 /home/postgres/copy.py
+      #become: yes
+      #become_user: postgres
+      #environment:
+        #PATH: $PATH:{{ pg_dir }}/bin
+        #LD_LIBRARY_PATH: $LD_LIBRARY_PATH:{{ pg_dir }}/lib
+      #when: pg_init is defined
 
     - name: Start pg_view
       command: pg_view -o json > /home/ubuntu/postgresql.json &
