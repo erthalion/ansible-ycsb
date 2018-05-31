@@ -3,6 +3,9 @@
   gather_facts: false
   user: ubuntu
   tasks:
+    - debug: msg="{{ item['file1'] }}"
+      with_items: "{{ pgbench_script }}"
+
     - include: install_postgres_deb.yml
 
     - name: Install pg_view dependencies
@@ -75,8 +78,15 @@
 
     - name: Copy pgbench sql
       template:
-        src=templates/init/{{ item }}.sql
-        dest=/home/ubuntu/{{ item }}.sql
+        src=templates/init/{{ item['file1'] }}.sql
+        dest=/home/ubuntu/{{ item['file1'] }}.sql
+      with_items: "{{ pgbench_script }}"
+      when: pgbench_script is defined
+
+    - name: Copy pgbench sql
+      template:
+        src=templates/init/{{ item['file2'] }}.sql
+        dest=/home/ubuntu/{{ item['file2'] }}.sql
       with_items: "{{ pgbench_script }}"
       when: pgbench_script is defined
 

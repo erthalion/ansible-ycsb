@@ -1,9 +1,9 @@
 db_user: "test"
 db_pass: "123456"
 db_name: "{{ DB_NAME | default('test') }}"
-instance_type: "{{ INSTANCE_TYPE | default('i3.large') }}"
+instance_type: "{{ INSTANCE_TYPE | default('m5.2xlarge') }}"
 keypair: "{{ KEYPAIR | default('erthalion_oregon') }}"
-default_image: "ami-efd0428f"
+default_image: "ami-db710fa3"
 vpc_subnet_id: "{{ subnet_id | default('subnet-83cea8da') }}"
 region: "{{ _region | default('us-west-2') }}"
 availability_zone: "{{ _availability_zone | default('us-west-2c') }}"
@@ -12,7 +12,7 @@ price: 0.3
 generator_ami_file: "generator_ami"
 db_volumes:
 - device_name: /dev/sda1
-  volume_size: 8
+  volume_size: 64
   volume_type: gp2
   delete_on_termination: true
 recordcount: "{{ _recordcount | default('1000000') }}"

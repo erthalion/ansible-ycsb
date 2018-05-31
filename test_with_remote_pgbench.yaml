@@ -35,7 +35,8 @@
         -T {{ pgbench_time }}
         -c {{ pgbench_clients }}
         -j {{ pgbench_clients }}
-        -f /home/ubuntu/{{ item }}.sql
+        -f /home/ubuntu/{{ item['file1'] }}.sql@{{ item['weight1'] }}
+        -f /home/ubuntu/{{ item['file2'] }}.sql@{{ item['weight2'] }}
         chdir={{ pg_dir | default('/home/ubuntu/') }}
       with_items: "{{ pgbench_script }}"
       register: run
