@@ -22,8 +22,15 @@
   tasks:
     - name: Copy pgbench sql
       template:
-        src=templates/init/{{ item }}.sql
-        dest=/home/ubuntu/{{ item }}.sql
+        src=templates/init/{{ item['file1'] }}.sql
+        dest=/home/ubuntu/{{ item['file1'] }}.sql
+      with_items: "{{ pgbench_script }}"
+      when: pgbench_script is defined
+
+    - name: Copy pgbench sql
+      template:
+        src=templates/init/{{ item['file2'] }}.sql
+        dest=/home/ubuntu/{{ item['file2'] }}.sql
       with_items: "{{ pgbench_script }}"
       when: pgbench_script is defined
 
@@ -42,11 +49,11 @@
       register: run
 
     - name: Save result to file
-      copy: content={{ run }} dest=/home/ubuntu/run_postgresql_{{ item }}
+      copy: content={{ run }} dest=/home/ubuntu/run_postgresql_{{ item['name'] }}
       with_items: "{{ pgbench_script }}"
 
     - name: Fetch results for PostgreSQL
-      fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql_{{ item }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+      fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql_{{ item['name'] }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
       with_items: "{{ pgbench_script }}"
 
     - name: Dump all vars
