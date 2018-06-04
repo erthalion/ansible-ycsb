@@ -7,6 +7,7 @@
       become: yes
       shell: >
         echo 0 > /sys/devices/system/cpu/cpu1/online
+        echo 0 > /sys/devices/system/cpu/cpu3/online
       when: disable_hyperthreading is defined
 
     - name: Start sar for run
@@ -46,15 +47,38 @@
         -f /home/ubuntu/{{ item['file2'] }}.sql@{{ item['weight2'] }}
         chdir={{ pg_dir | default('/home/ubuntu/') }}
       with_items: "{{ pgbench_script }}"
+      when: pgbench_script is defined
+      register: run
+
+    - name: Test
+      shell: >
+        pgbench -r
+        -h {{ groups['ec2postgresql'][0] }}
+        -U {{ db_user }}
+        -T {{ pgbench_time }}
+        -c {{ pgbench_clients }}
+        -j {{ pgbench_clients }}
+        chdir={{ pg_dir | default('/home/ubuntu/') }}
+      when: pgbench_script is not defined
       register: run
 
     - name: Save result to file
       copy: content={{ run }} dest=/home/ubuntu/run_postgresql_{{ item['name'] }}
       with_items: "{{ pgbench_script }}"
+      when: pgbench_script is defined
+
+    - name: Save result to file
+      copy: content={{ run }} dest=/home/ubuntu/run_postgresql
+      when: pgbench_script is not defined
 
     - name: Fetch results for PostgreSQL
       fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql_{{ item['name'] }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
       with_items: "{{ pgbench_script }}"
+      when: pgbench_script is defined
+
+    - name: Fetch results for PostgreSQL
+      fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+      when: pgbench_script is not defined
 
     - name: Dump all vars
       action: template src=templates/dumpall.j2 dest=/tmp/vars

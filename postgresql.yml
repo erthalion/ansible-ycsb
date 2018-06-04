@@ -3,9 +3,6 @@
   gather_facts: false
   user: ubuntu
   tasks:
-    - debug: msg="{{ item['file1'] }}"
-      with_items: "{{ pgbench_script }}"
-
     - include: install_postgres_deb.yml
 
     - name: Install pg_view dependencies
@@ -75,6 +72,7 @@
       template:
         src=templates/init/{{ pg_init }}.sql
         dest=/home/ubuntu/{{ pg_init }}.sql
+      when: pg_init is defined
 
     - name: Copy pgbench sql
       template:
@@ -93,6 +91,10 @@
     - name: Run init script
       shell: psql {{ db_name }} -U {{ db_user }} < /home/ubuntu/{{ pg_init }}.sql
       when: pg_init is defined
+
+    - name: Run init command
+      shell: pgbench -i -s {{ pgbench_scale }} -U {{ db_user }} {{ db_name }}
+      when: pgbench_init is defined
 
     - name: Start pg_view
       command: pg_view -o json > /home/ubuntu/postgresql.json &

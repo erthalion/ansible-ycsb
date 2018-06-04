@@ -13,7 +13,7 @@ do
     do
         echo "Run ${i} experiment"
 
-        ansible-playbook benchmark.yml -e "threads=${thread}" -e "@${1}" || failed=1
+        ansible-playbook benchmark.yml -e "pgbench_clients=${thread}" -e "@${1}" || failed=1
 
         # Forced cleanup even if there were errors before
         #
