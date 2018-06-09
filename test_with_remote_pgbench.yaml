@@ -6,7 +6,7 @@
     - name: Disable hyperthreading
       become: yes
       shell: >
-        echo 0 > /sys/devices/system/cpu/cpu1/online
+        echo 0 > /sys/devices/system/cpu/cpu2/online
         echo 0 > /sys/devices/system/cpu/cpu3/online
       when: disable_hyperthreading is defined
 
@@ -37,7 +37,7 @@
 
     - name: Test
       shell: >
-        pgbench -r
+        pgbench -r -l
         -h {{ groups['ec2postgresql'][0] }}
         -U {{ db_user }}
         -T {{ pgbench_time }}
@@ -52,7 +52,7 @@
 
     - name: Test
       shell: >
-        pgbench -r
+        pgbench -r -l
         -h {{ groups['ec2postgresql'][0] }}
         -U {{ db_user }}
         -T {{ pgbench_time }}
@@ -79,6 +79,14 @@
     - name: Fetch results for PostgreSQL
       fetch: src={{ pg_dir | default('/home/ubuntu/') }}/run_postgresql dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
       when: pgbench_script is not defined
+
+    - name: List pgbench logs
+      shell: ls {{ pg_dir | default('/home/ubuntu/') }}/pgbench_log.*
+      register: pgbench_log_files
+
+    - name: Fetch pgbench logs for PostgreSQL
+      fetch: src={{ item }} dest="./{{ workload }}_threads_{{ pgbench_clients }}_{{ date }}"
+      with_items: "{{ pgbench_log_files.stdout_lines }}"
 
     - name: Dump all vars
       action: template src=templates/dumpall.j2 dest=/tmp/vars
