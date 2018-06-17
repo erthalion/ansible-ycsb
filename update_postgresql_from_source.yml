@@ -32,20 +32,11 @@
       shell: ./bin/pg_ctl -D data restart chdir=/home/postgres/build/
       when: postgres_from_source is defined
 
-    - meta: flush_handlers
-
-    - name: Start pg_view
-      shell: pg_view -o json > /tmp/postgresql.json &
-      become: yes
-      become_user: postgres
-      register: pg_view_start
+    #- name: Start pg_view
+      #shell: pg_view -o json > /tmp/postgresql.json &
+      #become: yes
+      #become_user: postgres
+      #register: pg_view_start
 
   environment:
     PGPASSWORD: "{{ db_pass }}"
-
-  handlers:
-    - name: restart postgresql
-      become: yes
-      service:
-        name=postgresql
-        state=restarted

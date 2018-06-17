@@ -3,7 +3,38 @@
   gather_facts: false
   user: ubuntu
   tasks:
+    - name: Configure dirty_background_bytes
+      become: true
+      sysctl:
+        name: vm.dirty_background_bytes
+        value: 67108864
+      when: dirty_pages_small is defined
+
+    - name: Configure dirty_bytes
+      become: true
+      sysctl:
+        name: vm.dirty_bytes
+        value: 536870912
+      when: dirty_pages_small is defined
+
+    - name: Configure dirty_background_ratio
+      become: true
+      sysctl:
+        name: vm.dirty_background_ratio
+        value: 10
+      when: dirty_pages_big is defined
+
+    - name: Configure dirty_ratio
+      become: true
+      sysctl:
+        name: vm.dirty_ratio
+        value: 20
+      when: dirty_pages_big is defined
+
     - include: install_postgres_deb.yml
+
+    - include: nvme.yml
+      when: postgresql_nvme is defined
 
     - name: Install pg_view dependencies
       become: yes
@@ -24,6 +55,12 @@
       become: yes
       pip: name=pg_view
            executable=pip3
+
+    - name: Init db
+      become: yes
+      become_user: postgres
+      shell: /usr/lib/postgresql/10/bin/initdb -D {{ pg_dir }}
+      when: pg_dir is defined
 
     - name: Template Postgresql configuration file
       become: yes
@@ -55,18 +92,50 @@
       become: yes
       become_user: postgres
       become_method: sudo
+      when: pg_dir is not defined
+
+    - name: Create user
+      postgresql_user:
+        name={{ db_user }}
+        password={{ db_pass }}
+        role_attr_flags=CREATEDB,SUPERUSER
+        state=present
+        encrypted=yes
+        login_unix_socket=/tmp
+      become: yes
+      become_user: postgres
+      become_method: sudo
+      when: pg_dir is defined
 
     - name: Create user database
       postgresql_db:
         name={{ db_user }}
         login_user={{ db_user }}
         login_password={{ db_pass }}
+      when: pg_dir is not defined
 
     - name: Create test database
       postgresql_db:
         name={{ db_name }}
         login_user={{ db_user }}
         login_password={{ db_pass }}
+      when: pg_dir is not defined
+
+    - name: Create user database
+      postgresql_db:
+        name={{ db_user }}
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+        login_unix_socket=/tmp
+      when: pg_dir is defined
+
+    - name: Create test database
+      postgresql_db:
+        name={{ db_name }}
+        login_user={{ db_user }}
+        login_password={{ db_pass }}
+        login_unix_socket=/tmp
+      when: pg_dir is defined
 
     - name: Copy init sql
       template:

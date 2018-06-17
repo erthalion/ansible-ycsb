@@ -11,6 +11,7 @@
     - role: create_instance
       instance: "generator"
       image: "{{ generator_ami | default(default_image) }}"
+      instance_type: "m5.large"
       instance_volumes: []
       when: generator is defined or generator_pgbench is defined
 

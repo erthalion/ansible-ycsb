@@ -9,12 +9,13 @@
     group: "{{ instance }}"
     vpc_subnet_id: "{{ vpc_subnet_id }}"
     placement_group: "{{ placement_group }}"
+    ebs_optimized: true
     spot_price: "{{ price }}"
     zone: "{{ availability_zone }}"
     wait: true
     volumes: "{{ instance_volumes }}"
     monitoring: no
-    tenancy: dedicated
+    #tenancy: dedicated
   register: ec2_info
 
 - name: Add instance {{ instance }} to ec2hosts group

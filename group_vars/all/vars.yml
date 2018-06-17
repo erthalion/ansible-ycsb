@@ -1,7 +1,7 @@
 db_user: "test"
 db_pass: "123456"
 db_name: "{{ DB_NAME | default('test') }}"
-instance_type: "{{ INSTANCE_TYPE | default('m5.2xlarge') }}"
+instance_type: "{{ INSTANCE_TYPE | default('m5.4xlarge') }}"
 keypair: "{{ KEYPAIR | default('erthalion_oregon') }}"
 default_image: "ami-db710fa3"
 vpc_subnet_id: "{{ subnet_id | default('subnet-83cea8da') }}"

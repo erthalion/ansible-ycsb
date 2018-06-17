@@ -3,19 +3,20 @@
   become: yes
   command: mkfs.ext4 -E nodiscard /dev/nvme0n1
 
-- name: Create mount point
+- name: Mount nvme
+  become: yes
+  mount:
+    path: /mnt/nvme
+    src: /dev/nvme0n1
+    #opts: noatime,discard,nobarrier,data=writeback
+    opts: "{{ nvme_mount_options | default('discard') }}"
+    state: mounted
+    fstype: ext4
+
+- name: Mount point permissions
   become: yes
   file:
     path: /mnt/nvme/
     group: postgres
     owner: postgres
     state: directory
-
-- name: Mount nvme
-  become: yes
-  mount:
-      path: /mnt/nvme
-      src: /dev/nvme0n1
-      opts: discard
-      state: present
-      fstype: ext4

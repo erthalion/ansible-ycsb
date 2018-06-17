@@ -51,7 +51,7 @@
         -j {{ pgbench_clients }}
         -f /home/ubuntu/{{ item['file1'] }}.sql@{{ item['weight1'] }}
         -f /home/ubuntu/{{ item['file2'] }}.sql@{{ item['weight2'] }}
-        chdir={{ pg_dir | default('/home/ubuntu/') }}
+        chdir=/home/ubuntu/
       with_items: "{{ pgbench_script }}"
       when: pgbench_script is defined
       register: run
@@ -64,7 +64,7 @@
         -T {{ pgbench_time }}
         -c {{ pgbench_clients }}
         -j {{ pgbench_clients }}
-        chdir={{ pg_dir | default('/home/ubuntu/') }}
+        chdir=/home/ubuntu/
       when: pgbench_script is not defined
       register: run
 
@@ -87,7 +87,7 @@
       when: pgbench_script is not defined
 
     - name: List pgbench logs
-      shell: ls {{ pg_dir | default('/home/ubuntu/') }}/pgbench_log.*
+      shell: ls /home/ubuntu/pgbench_log.*
       register: pgbench_log_files
 
     - name: Fetch pgbench logs for PostgreSQL

@@ -15,7 +15,7 @@ do
 
         ansible-playbook benchmark.yml\
             -e "pgbench_clients=${thread}"\
-            -e "INSTANCE_TYPE=m4.xlarge"\
+            -e "dirty_pages_big=true"\
             -e "@${1}" || failed=1
 
         # Forced cleanup even if there were errors before
@@ -24,23 +24,13 @@ do
 
         ansible-playbook benchmark.yml\
             -e "pgbench_clients=${thread}"\
-            -e "INSTANCE_TYPE=m4.xlarge"\
-            -e "tsc=true"\
+            -e "dirty_pages_small=true"\
             -e "@${1}" || failed=1
+
+        # Forced cleanup even if there were errors before
+        #
         ansible-playbook cleanup.yml -e "@${1}"
 
-        ansible-playbook benchmark.yml\
-            -e "pgbench_clients=${thread}"\
-            -e "INSTANCE_TYPE=m5.xlarge"\
-            -e "@${1}" || failed=1
-        ansible-playbook cleanup.yml -e "@${1}"
-
-        ansible-playbook benchmark.yml\
-            -e "pgbench_clients=${thread}"\
-            -e "INSTANCE_TYPE=m5.xlarge"\
-            -e "tsc=true"\
-            -e "@${1}" || failed=1
-        ansible-playbook cleanup.yml -e "@${1}"
 
         if [[ ${failed:+x} ]]; then
            exit 1
