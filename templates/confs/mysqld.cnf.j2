@@ -35,5 +35,9 @@ symbolic-links=0
 
 # performance_schema=0
 
+# Use partial JSON updates with binlog in MySQL 8.0
+loose-binlog_row_value_options=PARTIAL_JSON
+loose-binlog_row_image=MINIMAL
+
 [client]
 default_auth = mysql_native_password
